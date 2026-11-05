@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIRTUAL TAWAF LIVE - OBS & Admin Dashboard</title>
+    <title>VIRTUAL TAWAF LIVE 2D - OBS & Admin Dashboard</title>
 
     <!-- Tailwind CSS for UI Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -30,7 +30,7 @@
 
         // Firebase Configuration (Gunakan config default/demo jika belum dikonfigurasi)
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyC1kMjsw6YP0ypb-FNY0fymIyNN784moa4",
+           apiKey: "AIzaSyC1kMjsw6YP0ypb-FNY0fymIyNN784moa4",
   authDomain: "virtual-live-90cf0.firebaseapp.com",
   databaseURL: "https://virtual-live-90cf0-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "virtual-live-90cf0",
@@ -136,7 +136,7 @@
                 </div>
                 <div>
                     <h1 class="font-extrabold text-base tracking-wide bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 bg-clip-text text-transparent">
-                        VIRTUAL TAWAF LIVE
+                        VIRTUAL TAWAF LIVE 2D
                     </h1>
                     <p class="text-[10px] text-slate-400">TikTok LIVE OBS Interactive Canvas</p>
                 </div>
@@ -486,6 +486,15 @@
 
             // Load Default Kaaba Image
             kaabaImage.src = state.settings.kaabaImageSrc;
+
+            // Check URL query parameters for direct view routing (e.g. index.html?mode=admin)
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewMode = urlParams.get('mode');
+            if (viewMode === 'admin') {
+                switchView('admin');
+            } else if (viewMode === 'display') {
+                switchView('display');
+            }
 
             // Connect Firebase Sync if available
             initFirebaseListeners();
