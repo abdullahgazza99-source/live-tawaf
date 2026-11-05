@@ -28,17 +28,16 @@
         window.remove = remove;
         window.update = update;
 
-        // Firebase Configuration (Gunakan config default/demo jika belum dikonfigurasi)
+        // Firebase Configuration
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-             apiKey: "AIzaSyC1kMjsw6YP0ypb-FNY0fymIyNN784moa4",
-  authDomain: "virtual-live-90cf0.firebaseapp.com",
-  databaseURL: "https://virtual-live-90cf0-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "virtual-live-90cf0",
-  storageBucket: "virtual-live-90cf0.firebasestorage.app",
-  messagingSenderId: "964693320155",
-  appId: "1:964693320155:web:c5f334851a7703c72607fe",
-  measurementId: "G-CWJ46MT37P"
-            appId: typeof __app_id !== 'undefined' ? __app_id : "virtual-tawaf-live-app"
+            apiKey: "AIzaSyC1kMjsw6YP0ypb-FNY0fymIyNN784moa4",
+            authDomain: "virtual-live-90cf0.firebaseapp.com",
+            databaseURL: "https://virtual-live-90cf0-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "virtual-live-90cf0",
+            storageBucket: "virtual-live-90cf0.firebasestorage.app",
+            messagingSenderId: "964693320155",
+            appId: "1:964693320155:web:c5f334851a7703c72607fe", // <-- PERBAIKAN: Koma ditambahkan di sini
+            measurementId: "G-CWJ46MT37P"
         };
 
         // Sanitize appId to ensure valid Firebase path (no '.', '#', '$', '[', or ']')
@@ -53,8 +52,9 @@
             
             // Sign in anonymously for simple state sync
             signInAnonymously(window.auth).catch(err => console.warn("Firebase Auth Fallback to Local State:", err));
+            console.log("✅ Firebase Core Berhasil Diinisialisasi!");
         } catch (e) {
-            console.warn("Using Local State Fallback mode due to Firebase connection limits:", e);
+            console.warn("❌ Gagal Inisialisasi Firebase:", e);
         }
     </script>
 
@@ -157,9 +157,7 @@
     <!-- MAIN APP CONTAINER -->
     <main class="max-w-7xl mx-auto p-2 sm:p-4 md:p-6">
 
-        <!-- ========================================== -->
-        <!-- VIEW 1: DISPLAY LIVE (CANVAS OBS SOURCE)   -->
-        <!-- ========================================== -->
+        <!-- VIEW 1: DISPLAY LIVE (CANVAS OBS SOURCE) -->
         <section id="view-display" class="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] py-2">
             <div class="w-full text-center mb-2 flex items-center justify-between px-2 max-w-[480px]">
                 <div class="flex items-center gap-2">
@@ -198,9 +196,7 @@
             </p>
         </section>
 
-        <!-- ========================================== -->
-        <!-- VIEW 2: DASHBOARD CONTROL ADMIN            -->
-        <!-- ========================================== -->
+        <!-- VIEW 2: DASHBOARD CONTROL ADMIN -->
         <section id="view-admin" class="hidden space-y-6">
             <!-- Header Admin & Quick Stats -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
@@ -247,10 +243,8 @@
 
             <!-- Main Admin Grid: Input Form & Active Users -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
                 <!-- Left Column: Quick Spawner & Control Settings -->
                 <div class="lg:col-span-5 space-y-6">
-                    
                     <!-- Form 1: Input Username TikTok Live -->
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
@@ -306,7 +300,6 @@
                             <i class="fa-solid fa-sliders text-amber-400"></i> Kontrol Simulator Realtime
                         </h2>
 
-                        <!-- Speed Slider -->
                         <div>
                             <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
                                 <span>Kecepatan Pergerakan Tawaf</span>
@@ -316,7 +309,6 @@
                                    class="w-full accent-amber-500 bg-slate-950 rounded-lg cursor-pointer">
                         </div>
 
-                        <!-- Character Size Scale -->
                         <div>
                             <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
                                 <span>Skala Ukuran Karakter</span>
@@ -326,7 +318,6 @@
                                    class="w-full accent-amber-500 bg-slate-950 rounded-lg cursor-pointer">
                         </div>
 
-                        <!-- Sound Volume Slider -->
                         <div>
                             <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
                                 <span>Volume Efek Suara</span>
@@ -358,7 +349,6 @@
                                    class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-amber-400 hover:file:bg-slate-700 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl">
                         </div>
 
-                        <!-- Image Adjustment Controls -->
                         <div class="grid grid-cols-2 gap-3 pt-1">
                             <div>
                                 <label class="block text-[11px] font-semibold text-slate-400 mb-1">Skala Ka'bah</label>
@@ -396,7 +386,6 @@
                             </span>
                         </div>
 
-                        <!-- Active Users Table -->
                         <div class="flex-1 overflow-x-auto min-h-[300px]">
                             <table class="w-full text-left text-xs text-slate-300">
                                 <thead class="bg-slate-950 text-slate-400 uppercase font-bold text-[10px] tracking-wider">
@@ -426,9 +415,7 @@
 
     </main>
 
-    <!-- ========================================== -->
     <!-- JAVASCRIPT ENGINE & CANVAS ANIMATION LOGIC -->
-    <!-- ========================================== -->
     <script>
         /* -------------------------------------------------------------
          * 1. APP STATE & GLOBAL CONSTANTS
@@ -436,20 +423,16 @@
         const CANVAS_WIDTH = 1080;
         const CANVAS_HEIGHT = 1920;
         
-        // Ka'bah & Tawaf Path Coordinate System
-        const CENTER_X = CANVAS_WIDTH / 2; // 540
-        const CENTER_Y = CANVAS_HEIGHT / 2 - 50; // 910
-        const TAWAF_RADIUS_X = 320; // Radius Horizontal Orbit Tawaf
-        const TAWAF_RADIUS_Y = 220; // Radius Vertikal Orbit (Perspektif Isometrik)
+        const CENTER_X = CANVAS_WIDTH / 2;
+        const CENTER_Y = CANVAS_HEIGHT / 2 - 50;
+        const TAWAF_RADIUS_X = 320;
+        const TAWAF_RADIUS_Y = 220;
         
-        // Gate Entry Point (Gerban Masuk dari bawah)
         const ENTRY_X = CENTER_X;
         const ENTRY_Y = CANVAS_HEIGHT - 120;
 
-        // Default Ka'bah SVG/Canvas Graphic Preset Data
         const DEFAULT_KAABA_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="240" viewBox="0 0 220 240"><rect x="30" y="40" width="160" height="170" fill="%23111111" rx="8"/><path d="M 30 40 L 190 40 L 190 85 L 30 85 Z" fill="%23d97706"/><rect x="35" y="45" width="150" height="35" fill="none" stroke="%23fef08a" stroke-width="3" stroke-dasharray="6,4"/><text x="110" y="68" fill="%23fef08a" font-size="16" font-family="sans-serif" font-weight="bold" text-anchor="middle">ﷲ</text><rect x="50" y="110" width="35" height="75" fill="%23b45309" stroke="%23fef08a" stroke-width="2"/><circle cx="170" cy="165" r="12" fill="%23475569" stroke="%23cbd5e1" stroke-width="4"/><circle cx="170" cy="165" r="5" fill="%230f172a"/></svg>`;
 
-        // Application State Container
         let state = {
             activeUsers: [],
             stats: {
@@ -479,15 +462,10 @@
         window.addEventListener('DOMContentLoaded', () => {
             canvas = document.getElementById('tawafCanvas');
             ctx = canvas.getContext('2d');
-
-            // Set canvas buffer resolution strictly to 1080x1920
             canvas.width = CANVAS_WIDTH;
             canvas.height = CANVAS_HEIGHT;
-
-            // Load Default Kaaba Image
             kaabaImage.src = state.settings.kaabaImageSrc;
 
-            // Check URL query parameters for direct view routing (e.g. index.html?mode=admin)
             const urlParams = new URLSearchParams(window.location.search);
             const viewMode = urlParams.get('mode');
             if (viewMode === 'admin') {
@@ -496,14 +474,12 @@
                 switchView('display');
             }
 
-            // Connect Firebase Sync if available
+            // PANGGIL FUNGSI DENGAN SISTEM RETRY
             initFirebaseListeners();
 
-            // Start Canvas Animation Render Loop
             requestAnimationFrame(renderCanvasLoop);
         });
 
-        // Switch View between OBS Display and Admin Dashboard
         function switchView(viewName) {
             const displaySec = document.getElementById('view-display');
             const adminSec = document.getElementById('view-admin');
@@ -524,7 +500,7 @@
         }
 
         /* -------------------------------------------------------------
-         * 3. WEB AUDIO API SOUND SYNTHESIZER (No External Files Required)
+         * 3. WEB AUDIO API SOUND SYNTHESIZER
          * ------------------------------------------------------------- */
         function initAudioContext() {
             if (!audioCtx) {
@@ -540,27 +516,18 @@
             }
         }
 
-        // Fitur Voice Announcement Text-to-Speech (Selamat Datang [Nama User])
         function speakWelcome(username) {
             if (!('speechSynthesis' in window) || state.settings.soundMuted || state.settings.soundVolume <= 0) return;
-
             try {
-                // Hentikan ucapan sebelumnya jika ada antrean penonton berturut-turut
                 window.speechSynthesis.cancel();
-
                 const utterance = new SpeechSynthesisUtterance(`Selamat datang ${username}`);
-                utterance.lang = 'id-ID'; // Bahasa Indonesia
+                utterance.lang = 'id-ID';
                 utterance.volume = state.settings.soundVolume;
-                utterance.rate = 1.0; // Kecepatan normal
-                utterance.pitch = 1.1; // Pitch sedikit hangat
-
-                // Coba gunakan suara Bahasa Indonesia jika tersedia di OS/Browser
+                utterance.rate = 1.0;
+                utterance.pitch = 1.1;
                 const voices = window.speechSynthesis.getVoices();
                 const idVoice = voices.find(voice => voice.lang.includes('id') || voice.lang.includes('ID'));
-                if (idVoice) {
-                    utterance.voice = idVoice;
-                }
-
+                if (idVoice) utterance.voice = idVoice;
                 window.speechSynthesis.speak(utterance);
             } catch (e) {
                 console.warn("Speech Synthesis error/blocked:", e);
@@ -569,7 +536,6 @@
 
         function playSynthesizedSound(type) {
             if (!audioCtx || state.settings.soundMuted || state.settings.soundVolume <= 0) return;
-
             try {
                 const now = audioCtx.currentTime;
                 const masterGain = audioCtx.createGain();
@@ -577,7 +543,6 @@
                 masterGain.connect(audioCtx.destination);
 
                 if (type === 'spawn_biasa') {
-                    // Soft Pop
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
                     osc.type = 'sine';
@@ -590,7 +555,6 @@
                     osc.start(now);
                     osc.stop(now + 0.08);
                 } else if (type === 'spawn_sedang') {
-                    // Chime Chord
                     [523.25, 659.25, 783.99].forEach((freq, idx) => {
                         const osc = audioCtx.createOscillator();
                         const gain = audioCtx.createGain();
@@ -604,7 +568,6 @@
                         osc.stop(now + 0.3);
                     });
                 } else if (type === 'spawn_besar') {
-                    // Royal Gold Gong / Brass Wave
                     [261.63, 329.63, 392.00, 523.25].forEach((freq) => {
                         const osc = audioCtx.createOscillator();
                         const gain = audioCtx.createGain();
@@ -618,7 +581,6 @@
                         osc.stop(now + 0.8);
                     });
                 } else if (type === 'finish_tawaf') {
-                    // Success Sparkle
                     [659.25, 783.99, 1046.50].forEach((freq, idx) => {
                         const osc = audioCtx.createOscillator();
                         const gain = audioCtx.createGain();
@@ -638,15 +600,20 @@
         }
 
         /* -------------------------------------------------------------
-         * 4. FIREBASE REALTIME SYNC & LOCAL FALLBACK
+         * 4. FIREBASE REALTIME SYNC (DENGAN SISTEM RETRY)
          * ------------------------------------------------------------- */
         function initFirebaseListeners() {
-            if (!window.db) return;
+            // JIKA FIREBASE BELUM SIAP, TUNGGU 0.5 DETIK LALU COBA LAGI
+            if (!window.db) {
+                console.log("⏳ Menunggu koneksi Firebase...");
+                setTimeout(initFirebaseListeners, 500); 
+                return;
+            }
 
+            console.log("✅ Tersambung ke Firebase! Sinkronisasi data dimulai. AppID:", window.appId);
             const dbRef = window.db;
             const appId = window.appId || 'default-app';
 
-            // Sync Active Users
             const usersRef = ref(dbRef, `artifacts/${appId}/public/data/activeUsers`);
             onValue(usersRef, (snapshot) => {
                 const data = snapshot.val();
@@ -661,7 +628,6 @@
                 updateAdminTableUI();
             });
 
-            // Sync Settings & Stats
             const settingsRef = ref(dbRef, `artifacts/${appId}/public/data/settings`);
             onValue(settingsRef, (snapshot) => {
                 const data = snapshot.val();
@@ -676,7 +642,10 @@
         }
 
         function syncStateToFirebase() {
-            if (!window.db) return;
+            if (!window.db) {
+                console.warn("Gagal sinkron: Firebase belum siap.");
+                return;
+            }
             const appId = window.appId || 'default-app';
             set(ref(window.db, `artifacts/${appId}/public/data/settings`), state.settings);
         }
@@ -693,39 +662,34 @@
             if (!username) return;
 
             const category = document.querySelector('input[name="giftCategory"]:checked').value;
-            
-            // Unique ID per spawn
             const userId = 'usr_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-            
-            // Dynamic Radius Offset for natural distribution on orbit
-            const radiusOffset = (Math.random() - 0.5) * 120; // Variasi offset jalur melingkar
-            const speedVar = 0.9 + Math.random() * 0.2; // Variasi kecepatan individu
+            const radiusOffset = (Math.random() - 0.5) * 120;
+            const speedVar = 0.9 + Math.random() * 0.2;
 
             const newUser = {
                 id: userId,
                 username: username,
-                category: category, // 'biasa', 'sedang', 'besar'
+                category: category,
                 startTime: Date.now(),
                 completedLaps: 0,
-                status: 'entering', // 'entering', 'tawaf', 'finished'
+                status: 'entering',
                 radiusOffset: radiusOffset,
                 speedVar: speedVar
             };
 
-            // Add locally
             state.activeUsers.push(newUser);
             state.stats.totalSpawned++;
-            
-            // Play Audio Effect
             playSynthesizedSound(`spawn_${category}`);
-
-            // Ucapkan "Selamat Datang [Nama User]"
             speakWelcome(username);
 
-            // Push to Firebase if online
             if (window.db) {
+                console.log("📤 Mengirim user ke Firebase:", username);
                 const appId = window.appId || 'default-app';
-                set(ref(window.db, `artifacts/${appId}/public/data/activeUsers/${userId}`), newUser);
+                set(ref(window.db, `artifacts/${appId}/public/data/activeUsers/${userId}`), newUser)
+                    .then(() => console.log("✅ Data user berhasil terkirim!"))
+                    .catch(err => console.error("❌ Gagal kirim data:", err));
+            } else {
+                console.error("❌ Firebase belum siap, data tidak terkirim.");
             }
 
             usernameInput.value = '';
@@ -751,27 +715,18 @@
         }
 
         /* -------------------------------------------------------------
-         * 6. CANVAS RENDERING ENGINE (ILLUSTRATION & ANIMATION)
+         * 6. CANVAS RENDERING ENGINE
          * ------------------------------------------------------------- */
         function renderCanvasLoop(timestamp) {
-            // 1. Clear Canvas Background
             ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-            // 2. Draw Masjidil Haram Marble Background 2D Illustration
             drawMasjidHaramBackground(ctx);
-
-            // 3. Draw Tawaf Path Orbit Guide (Subtle Floor Markers)
             drawTawafFloorGuide(ctx);
-
-            // 4. Draw Kaaba in Center (with custom image offset & scaling)
             drawKaabaBuilding(ctx);
 
-            // 5. Update & Draw Active Users
             const now = Date.now();
             let activeCount = 0;
             let totalLapsSum = 0;
 
-            // Sort users by Y coordinate so closer ones render on top (Isometric Depth sorting)
             const sortedUsers = [...state.activeUsers].sort((a, b) => {
                 const posA = calculateUserPosition(a, now);
                 const posB = calculateUserPosition(b, now);
@@ -780,22 +735,18 @@
 
             sortedUsers.forEach(user => {
                 const pos = calculateUserPosition(user, now);
-                
                 if (pos.status !== 'finished') {
                     activeCount++;
                     totalLapsSum += pos.completedLaps;
                     drawUserCharacter(ctx, user, pos);
                 } else if (user.status !== 'finished') {
-                    // Mark finished
                     user.status = 'finished';
                     state.stats.completed++;
                     playSynthesizedSound('finish_tawaf');
-                    // Auto cleanup after fade out
                     setTimeout(() => removeUser(user.id), 1000);
                 }
             });
 
-            // Update Overlay Stats
             document.getElementById('live-active-count').innerText = activeCount;
             document.getElementById('live-total-laps').innerText = totalLapsSum;
             document.getElementById('stat-active').innerText = activeCount;
@@ -803,53 +754,38 @@
             document.getElementById('stat-completed').innerText = state.stats.completed;
             document.getElementById('stat-total-spawned').innerText = state.stats.totalSpawned;
 
-            // Loop Next Frame
             requestAnimationFrame(renderCanvasLoop);
         }
 
-        /* Calculate exact position & lap count based on elapsed timestamp */
         function calculateUserPosition(user, now) {
             if (state.settings.isPaused) {
                 now = user.pausedTime || now;
             }
 
             const elapsedSec = (now - user.startTime) / 1000 * state.settings.speedMultiplier * user.speedVar;
-
-            // Phase 1: Entry Path (Moving from Gate up to Orbit Start)
-            const entryDuration = 4.0; // 4 seconds entry animation
+            const entryDuration = 4.0;
             
             if (elapsedSec < entryDuration) {
                 const progress = elapsedSec / entryDuration;
-                // Ease out trajectory from bottom gate to orbit start angle (bottom of orbit = Math.PI / 2)
                 const startOrbitX = CENTER_X + (TAWAF_RADIUS_X + user.radiusOffset) * Math.cos(Math.PI / 2);
                 const startOrbitY = CENTER_Y + (TAWAF_RADIUS_Y + user.radiusOffset * 0.7) * Math.sin(Math.PI / 2);
-
                 const currentX = ENTRY_X + (startOrbitX - ENTRY_X) * progress;
                 const currentY = ENTRY_Y + (startOrbitY - ENTRY_Y) * progress;
-
                 return { x: currentX, y: currentY, completedLaps: 0, status: 'entering', alpha: Math.min(progress * 2, 1) };
             }
 
-            // Phase 2: Counter-Clockwise Tawaf Orbit
             const orbitElapsed = elapsedSec - entryDuration;
-            const lapDuration = 10.0; // 10 seconds per lap default
+            const lapDuration = 10.0;
             const totalTargetLaps = 5;
-
             const totalRadians = (orbitElapsed / lapDuration) * (2 * Math.PI);
             const currentLap = Math.floor(totalRadians / (2 * Math.PI));
-            
-            // Tawaf direction is Counter-Clockwise (Angle decreases or increases accordingly)
-            // Starting at bottom angle (PI/2)
             const currentAngle = (Math.PI / 2) - totalRadians;
-
             const rx = TAWAF_RADIUS_X + user.radiusOffset;
             const ry = TAWAF_RADIUS_Y + user.radiusOffset * 0.7;
-
             const currentX = CENTER_X + rx * Math.cos(currentAngle);
             const currentY = CENTER_Y + ry * Math.sin(currentAngle);
 
             if (currentLap >= totalTargetLaps) {
-                // Phase 3: Fade out after 5 laps
                 const overLapSec = orbitElapsed - (totalTargetLaps * lapDuration);
                 const fadeAlpha = Math.max(0, 1 - overLapSec / 1.5);
                 return { x: currentX, y: currentY, completedLaps: 5, status: fadeAlpha <= 0 ? 'finished' : 'exiting', alpha: fadeAlpha };
@@ -859,10 +795,9 @@
         }
 
         /* -------------------------------------------------------------
-         * 7. VISUAL DRAWING HELPERS (Background, Kaaba & Character)
+         * 7. VISUAL DRAWING HELPERS
          * ------------------------------------------------------------- */
         function drawMasjidHaramBackground(ctx) {
-            // Base White Marble Flooring with Subtle Warm Tone
             const bgGrad = ctx.createRadialGradient(CENTER_X, CENTER_Y, 100, CENTER_X, CENTER_Y, 1000);
             bgGrad.addColorStop(0, '#f8fafc');
             bgGrad.addColorStop(0.6, '#f1f5f9');
@@ -870,7 +805,6 @@
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-            // Radial Marble Tile Lines (Mataf Pattern)
             ctx.strokeStyle = 'rgba(203, 213, 225, 0.4)';
             ctx.lineWidth = 3;
             for (let r = 180; r <= 800; r += 90) {
@@ -879,7 +813,6 @@
                 ctx.stroke();
             }
 
-            // Entry Gate Walkway Carpet/Pathway
             const gateGrad = ctx.createLinearGradient(ENTRY_X - 120, ENTRY_Y, ENTRY_X + 120, ENTRY_Y);
             gateGrad.addColorStop(0, 'rgba(217, 119, 6, 0.05)');
             gateGrad.addColorStop(0.5, 'rgba(217, 119, 6, 0.15)');
@@ -893,7 +826,6 @@
             ctx.closePath();
             ctx.fill();
 
-            // Decorative Islamic Arch Border Header
             ctx.fillStyle = '#0f172a';
             ctx.fillRect(0, 0, CANVAS_WIDTH, 70);
             ctx.fillStyle = '#d97706';
@@ -901,7 +833,6 @@
         }
 
         function drawTawafFloorGuide(ctx) {
-            // Highlighted Start Line (Maqam Ibrahim / Hajar Aswad Line Direction)
             ctx.strokeStyle = 'rgba(217, 119, 6, 0.3)';
             ctx.lineWidth = 4;
             ctx.setLineDash([8, 8]);
@@ -909,7 +840,7 @@
             ctx.moveTo(CENTER_X, CENTER_Y + 120);
             ctx.lineTo(CENTER_X, CENTER_Y + TAWAF_RADIUS_Y + 120);
             ctx.stroke();
-            ctx.setLineDash([]); // Reset line dash
+            ctx.setLineDash([]);
         }
 
         function drawKaabaBuilding(ctx) {
@@ -920,17 +851,14 @@
             const x = CENTER_X - (w / 2);
             const y = (CENTER_Y - (h / 2)) + offsetY;
 
-            // Kaaba Base Drop Shadow
             ctx.fillStyle = 'rgba(15, 23, 42, 0.3)';
             ctx.beginPath();
             ctx.ellipse(CENTER_X, CENTER_Y + (h / 2.5) + offsetY, w * 0.6, 40 * scale, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Draw Kaaba Image (Custom or Default SVG)
             try {
                 ctx.drawImage(kaabaImage, x, y, w, h);
             } catch (e) {
-                // Fallback Box if image load fails
                 ctx.fillStyle = '#111827';
                 ctx.fillRect(x, y, w, h);
             }
@@ -939,36 +867,30 @@
         function drawUserCharacter(ctx, user, pos) {
             ctx.save();
             ctx.globalAlpha = pos.alpha;
-
-            // Character Base Sizes
-            let baseRadius = 24; // Default Gift Biasa (Diameter 48px)
+            let baseRadius = 24;
             let circleColor = '#ffffff';
             let strokeColor = '#94a3b8';
             let textColor = '#0f172a';
             let isGold = false;
 
             if (user.category === 'sedang') {
-                baseRadius = 32; // Gift Sedang (Diameter 64px)
+                baseRadius = 32;
                 circleColor = '#ffffff';
                 strokeColor = '#3b82f6';
             } else if (user.category === 'besar') {
-                baseRadius = 42; // Gift Besar (Diameter 84px)
+                baseRadius = 42;
                 circleColor = '#fbbf24';
                 strokeColor = '#fef08a';
                 textColor = '#451a03';
                 isGold = true;
             }
 
-            // Apply Global Scale Setting
             const r = baseRadius * state.settings.sizeScale;
 
-            // 1. Draw Gold Glow / Shadow Pulse Effect
             if (isGold) {
                 const pulse = Math.sin(Date.now() / 200) * 6;
                 ctx.shadowColor = 'rgba(245, 158, 11, 0.8)';
                 ctx.shadowBlur = 18 + pulse;
-
-                // Outer Gold Ring Accent
                 ctx.strokeStyle = '#f59e0b';
                 ctx.lineWidth = 4;
                 ctx.beginPath();
@@ -982,7 +904,6 @@
                 ctx.shadowBlur = 6;
             }
 
-            // 2. Draw Main Character Circle Fill
             ctx.beginPath();
             ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
 
@@ -997,15 +918,11 @@
             }
             ctx.fill();
 
-            // 3. Circle Border Stroke
             ctx.lineWidth = isGold ? 3 : 2;
             ctx.strokeStyle = strokeColor;
             ctx.stroke();
-
-            // Reset Shadow for Crisp Text
             ctx.shadowBlur = 0;
 
-            // 4. Username Text inside Circle (Dynamic Font Resizing)
             ctx.fillStyle = textColor;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -1015,8 +932,6 @@
             fontSize = fontSize * state.settings.sizeScale;
 
             ctx.font = `800 ${fontSize}px Inter, sans-serif`;
-            
-            // Auto scale font down if username is long
             let textWidth = ctx.measureText(user.username).width;
             if (textWidth > maxTextWidth) {
                 fontSize = Math.max(8, fontSize * (maxTextWidth / textWidth));
@@ -1025,7 +940,6 @@
 
             ctx.fillText(user.username, pos.x, pos.y - (pos.status === 'tawaf' ? 3 : 0));
 
-            // 5. Small Lap Counter Badge (for Tawaf stage)
             if (pos.status === 'tawaf') {
                 const badgeY = pos.y + (r * 0.65);
                 ctx.fillStyle = '#0f172a';
@@ -1116,7 +1030,6 @@
             const btn = document.getElementById('btn-pause-toggle');
             if (state.settings.isPaused) {
                 btn.innerHTML = `<i class="fa-solid fa-play text-emerald-400"></i> Lanjutkan Animasi`;
-                // record pause timestamp for active users
                 const now = Date.now();
                 state.activeUsers.forEach(u => u.pausedTime = now);
             } else {
@@ -1142,7 +1055,6 @@
             }
         }
 
-        /* Custom Kaaba Image Handlers */
         function handleKaabaUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
