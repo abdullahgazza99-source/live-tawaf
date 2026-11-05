@@ -10,7 +10,7 @@ const TAWAF_RADIUS_Y = 220;
 const ENTRY_X = CENTER_X;
 const ENTRY_Y = CANVAS_HEIGHT - 120;
 
-const DEFAULT_KAABA_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="240" viewBox="0 0 220 240"><rect x="30" y="40" width="160" height="170" fill="%23111111" rx="8"/><path d="M 30 40 L 190 40 L 190 85 L 30 85 Z" fill="%23d97706"/><rect x="35" y="45" width="150" height="35" fill="none" stroke="%23fef08a" stroke-width="3" stroke-dasharray="6,4"/><text x="110" y="68" fill="%23fef08a" font-size="16" font-family="sans-serif" font-weight="bold" text-anchor="middle">ﷲ</text><rect x="50" y="110" width="35" height="75" fill="%23b45309" stroke="%23fef08a" stroke-width="2"/><circle cx="170" cy="165" r="12" fill="%23475569" stroke="%23cbd5e1" stroke-width="4"/><circle cx="170" cy="165" r="5" fill="%230f172a"/></svg>`;
+const DEFAULT_KAABA_SVG = "https://plain-apac-prod-public.komododecks.com/202611/05/OHJcF03qt18WeggGpJhw/image.png";
 
 let state = {
     activeUsers: [],
