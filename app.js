@@ -10,7 +10,7 @@ const TAWAF_RADIUS_Y = 220;
 const ENTRY_X = CENTER_X;
 const ENTRY_Y = CANVAS_HEIGHT - 120;
 
-const DEFAULT_KAABA_SVG = "https://plain-apac-prod-public.komododecks.com/202611/05/OHJcF03qt18WeggGpJhw/image.png";
+const DEFAULT_KAABA_SVG = "./kaabahini.png";
 
 let state = {
     activeUsers: [],
