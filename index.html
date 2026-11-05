@@ -19,13 +19,12 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Firebase SDKs (Wajib Online untuk Sinkronisasi) -->
+    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Expose Firebase ke global scope agar bisa diakses app.js
         window.ref = ref;
         window.set = set;
         window.push = push;
@@ -52,8 +51,6 @@
             window.auth = getAuth(app);
             signInAnonymously(window.auth).catch(err => console.warn("Firebase Auth Fallback:", err));
             console.log("✅ Firebase Core Berhasil Diinisialisasi!");
-            
-            // Trigger custom event setelah firebase siap
             window.dispatchEvent(new Event('firebaseReady'));
         } catch (e) {
             console.warn("❌ Gagal Inisialisasi Firebase:", e);
@@ -200,6 +197,29 @@
                                     </label>
                                 </div>
                             </div>
+                            
+                            <!-- BARU: Pilihan Mode Karakter -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-2">Tampilan Karakter</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <label class="cursor-pointer border border-slate-700 rounded-xl p-2 text-center transition hover:bg-slate-800 bg-slate-950 has-[:checked]:border-emerald-400 has-[:checked]:bg-slate-800">
+                                        <input type="radio" name="characterMode" value="text" checked class="sr-only">
+                                        <i class="fa-solid fa-font text-emerald-400 mb-1"></i>
+                                        <span class="block text-[10px] font-bold text-slate-200">Teks Saja</span>
+                                    </label>
+                                    <label class="cursor-pointer border border-slate-700 rounded-xl p-2 text-center transition hover:bg-slate-800 bg-slate-950 has-[:checked]:border-emerald-400 has-[:checked]:bg-slate-800">
+                                        <input type="radio" name="characterMode" value="shape" class="sr-only">
+                                        <i class="fa-solid fa-circle text-emerald-400 mb-1"></i>
+                                        <span class="block text-[10px] font-bold text-slate-200">Teks + Shape</span>
+                                    </label>
+                                    <label class="cursor-pointer border border-slate-700 rounded-xl p-2 text-center transition hover:bg-slate-800 bg-slate-950 has-[:checked]:border-emerald-400 has-[:checked]:bg-slate-800">
+                                        <input type="radio" name="characterMode" value="icon" class="sr-only">
+                                        <i class="fa-solid fa-user text-emerald-400 mb-1"></i>
+                                        <span class="block text-[10px] font-bold text-slate-200">Teks + Icon</span>
+                                    </label>
+                                </div>
+                            </div>
+
                             <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold py-3 rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-paper-plane"></i> KIRIM USERNAME KE TAWAF
                             </button>
@@ -226,6 +246,34 @@
                             <button onclick="clearAllUsers()" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-1.5"><i class="fa-solid fa-trash-can"></i> Reset</button>
                         </div>
                     </div>
+
+                    <!-- FORM PENGATURAN GAMBAR KA'BAH (Dikembalikan) -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                        <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-image text-amber-400"></i> Pengaturan Gambar Ka'bah
+                        </h2>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Upload / Pilih Gambar Ka'bah Custom</label>
+                            <input type="file" id="input-kaaba-file" accept="image/png, image/jpeg, image/webp" onchange="handleKaabaUpload(event)"
+                                   class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-amber-400 hover:file:bg-slate-700 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Skala Ka'bah</label>
+                                <input type="range" id="slider-kaaba-scale" min="50" max="200" step="5" value="100" oninput="updateKaabaAdjustments()" class="w-full accent-amber-500 bg-slate-950 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Offset Vertikal (Y)</label>
+                                <input type="range" id="slider-kaaba-offset-y" min="-100" max="100" step="5" value="0" oninput="updateKaabaAdjustments()" class="w-full accent-amber-500 bg-slate-950 rounded-lg">
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 pt-1">
+                            <button onclick="resetKaabaImage()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-bold py-2 rounded-xl transition">
+                                <i class="fa-solid fa-rotate-left mr-1"></i> Gambar Default
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Tabel Users -->
