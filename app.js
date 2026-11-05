@@ -289,7 +289,7 @@ function calculateUserPosition(user, now) {
     }
 
     const orbitElapsed = elapsedSec - entryDuration;
-    const lapDuration = 10.0;
+    const lapDuration = 100.0;
     const totalTargetLaps = 5;
     const totalRadians = (orbitElapsed / lapDuration) * (2 * Math.PI);
     const currentLap = Math.floor(totalRadians / (2 * Math.PI));
