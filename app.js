@@ -10,7 +10,7 @@ const TAWAF_RADIUS_Y = 220;
 const ENTRY_X = CENTER_X;
 const ENTRY_Y = CANVAS_HEIGHT - 120;
 
-const DEFAULT_KAABA_SVG = "./kaabahini.png";
+const DEFAULT_KAABA_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="240" viewBox="0 0 220 240"><rect x="30" y="40" width="160" height="170" fill="%23111111" rx="8"/><path d="M 30 40 L 190 40 L 190 85 L 30 85 Z" fill="%23d97706"/><rect x="35" y="45" width="150" height="35" fill="none" stroke="%23fef08a" stroke-width="3" stroke-dasharray="6,4"/><text x="110" y="68" fill="%23fef08a" font-size="16" font-family="sans-serif" font-weight="bold" text-anchor="middle">ﷲ</text><rect x="50" y="110" width="35" height="75" fill="%23b45309" stroke="%23fef08a" stroke-width="2"/><circle cx="170" cy="165" r="12" fill="%23475569" stroke="%23cbd5e1" stroke-width="4"/><circle cx="170" cy="165" r="5" fill="%230f172a"/></svg>`;
 
 let state = {
     activeUsers: [],
@@ -51,7 +51,6 @@ window.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(renderCanvasLoop);
 });
 
-// Event listener kustom jika Firebase telat siap
 window.addEventListener('firebaseReady', () => {
     isFirebaseReady = true;
     initFirebaseListeners();
@@ -151,7 +150,7 @@ function initFirebaseListeners() {
         setTimeout(initFirebaseListeners, 500);
         return;
     }
-    if (!isFirebaseReady) return; // Tunggu event siap
+    if (!isFirebaseReady) return;
 
     console.log("✅ Sinkronisasi Firebase Aktif:", window.appId);
     const dbRef = window.db;
@@ -193,12 +192,15 @@ function handleSpawnUser(e) {
     if (!username) return;
 
     const category = document.querySelector('input[name="giftCategory"]:checked').value;
+    // BARU: Mengambil nilai mode karakter dari form
+    const charMode = document.querySelector('input[name="characterMode"]:checked').value; 
+    
     const userId = 'usr_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
     const radiusOffset = (Math.random() - 0.5) * 120;
     const speedVar = 0.9 + Math.random() * 0.2;
 
     const newUser = {
-        id: userId, username, category, startTime: Date.now(),
+        id: userId, username, category, characterMode: charMode, startTime: Date.now(),
         completedLaps: 0, status: 'entering', radiusOffset, speedVar
     };
 
@@ -353,13 +355,27 @@ function drawKaabaBuilding(ctx) {
 
 function drawUserCharacter(ctx, user, pos) {
     ctx.save(); ctx.globalAlpha = pos.alpha;
-    let baseRadius = 24; let circleColor = '#ffffff'; let strokeColor = '#94a3b8'; let textColor = '#0f172a'; let isGold = false;
+    
+    let baseRadius = 24; 
+    let circleColor = '#ffffff'; 
+    let strokeColor = '#94a3b8'; 
+    let textColor = '#0f172a'; 
+    let isGold = false;
 
-    if (user.category === 'sedang') { baseRadius = 32; strokeColor = '#3b82f6'; }
-    else if (user.category === 'besar') { baseRadius = 42; circleColor = '#fbbf24'; strokeColor = '#fef08a'; textColor = '#451a03'; isGold = true; }
+    if (user.category === 'sedang') { 
+        baseRadius = 32; 
+        strokeColor = '#3b82f6'; 
+    } else if (user.category === 'besar') { 
+        baseRadius = 42; 
+        circleColor = '#fbbf24'; 
+        strokeColor = '#fef08a'; 
+        textColor = '#451a03'; 
+        isGold = true; 
+    }
 
     const r = baseRadius * state.settings.sizeScale;
 
+    // Efek Glow/Shadow
     if (isGold) {
         const pulse = Math.sin(Date.now() / 200) * 6;
         ctx.shadowColor = 'rgba(245, 158, 11, 0.8)'; ctx.shadowBlur = 18 + pulse;
@@ -371,19 +387,39 @@ function drawUserCharacter(ctx, user, pos) {
         ctx.shadowColor = 'rgba(0, 0, 0, 0.15)'; ctx.shadowBlur = 6;
     }
 
-    ctx.beginPath(); ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
-    if (isGold) {
-        const goldGrad = ctx.createRadialGradient(pos.x - r/3, pos.y - r/3, r/5, pos.x, pos.y, r);
-        goldGrad.addColorStop(0, '#fffbeb'); goldGrad.addColorStop(0.5, '#fde047'); goldGrad.addColorStop(1, '#d97706');
-        ctx.fillStyle = goldGrad;
-    } else { ctx.fillStyle = circleColor; }
-    ctx.fill();
+    // ==========================================
+    // BARU: LOGIKA MENGGAMBAR BERDASARKAN MODE
+    // ==========================================
+    const mode = user.characterMode || 'shape'; // Default ke shape jika data lama
 
-    ctx.lineWidth = isGold ? 3 : 2; ctx.strokeStyle = strokeColor; ctx.stroke(); ctx.shadowBlur = 0;
+    if (mode === 'shape' || mode === 'icon') {
+        // Gambar Lingkaran (Shape)
+        ctx.beginPath(); ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+        if (isGold) {
+            const goldGrad = ctx.createRadialGradient(pos.x - r/3, pos.y - r/3, r/5, pos.x, pos.y, r);
+            goldGrad.addColorStop(0, '#fffbeb'); goldGrad.addColorStop(0.5, '#fde047'); goldGrad.addColorStop(1, '#d97706');
+            ctx.fillStyle = goldGrad;
+        } else { ctx.fillStyle = circleColor; }
+        ctx.fill();
+        ctx.lineWidth = isGold ? 3 : 2; ctx.strokeStyle = strokeColor; ctx.stroke();
+    }
 
-    ctx.fillStyle = textColor; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.shadowBlur = 0; // Reset shadow untuk teks
+
+    // Gambar Teks (Semua mode)
+    ctx.fillStyle = textColor; 
+    ctx.textAlign = 'center'; 
+    ctx.textBaseline = 'middle';
+    
+    // Posisi Y teks disesuaikan jika ada Icon
+    const textY = (mode === 'icon') ? pos.y + (r * 0.25) : pos.y - (pos.status === 'tawaf' ? 3 : 0);
+
     const maxTextWidth = r * 1.7;
     let fontSize = (isGold ? 16 : (user.category === 'sedang' ? 14 : 12)) * state.settings.sizeScale;
+    
+    // Jika mode teks saja, font bisa sedikit lebih besar
+    if (mode === 'text') fontSize *= 1.2;
+
     ctx.font = `800 ${fontSize}px Inter, sans-serif`;
 
     let textWidth = ctx.measureText(user.username).width;
@@ -391,8 +427,17 @@ function drawUserCharacter(ctx, user, pos) {
         fontSize = Math.max(8, fontSize * (maxTextWidth / textWidth));
         ctx.font = `800 ${fontSize}px Inter, sans-serif`;
     }
-    ctx.fillText(user.username, pos.x, pos.y - (pos.status === 'tawaf' ? 3 : 0));
+    ctx.fillText(user.username, pos.x, textY);
 
+    // BARU: Gambar Icon di atas teks (jika mode icon)
+    if (mode === 'icon') {
+        ctx.fillStyle = isGold ? '#451a03' : strokeColor;
+        ctx.font = `900 ${fontSize * 1.5}px "Font Awesome 6 Free"`;
+        // Simbol bintang atau user, pastikan fontAwesome termuat
+        ctx.fillText("\uf007", pos.x, pos.y - (r * 0.3)); // f007 = User Icon
+    }
+
+    // Badge Putaran
     if (pos.status === 'tawaf') {
         const badgeY = pos.y + (r * 0.65);
         ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(pos.x, badgeY, 9 * state.settings.sizeScale, 0, Math.PI * 2); ctx.fill();
@@ -469,6 +514,39 @@ function updateSettingsUI() {
     document.getElementById('val-speed-multiplier').innerText = `${state.settings.speedMultiplier.toFixed(1)}x`;
     document.getElementById('val-size-scale').innerText = `${Math.round(state.settings.sizeScale * 100)}%`;
     document.getElementById('val-sound-vol').innerText = `${Math.round(state.settings.soundVolume * 100)}%`;
+}
+
+/* -------------------------------------------------------------
+ * 9. CUSTOM KAABA HANDLERS (DIKEMBALIKAN)
+ * ------------------------------------------------------------- */
+function handleKaabaUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const base64Data = e.target.result;
+        state.settings.kaabaImageSrc = base64Data;
+        kaabaImage.src = base64Data;
+        syncStateToFirebase();
+    };
+    reader.readAsDataURL(file);
+}
+
+function updateKaabaAdjustments() {
+    state.settings.kaabaScale = parseFloat(document.getElementById('slider-kaaba-scale').value) / 100;
+    state.settings.kaabaOffsetY = parseFloat(document.getElementById('slider-kaaba-offset-y').value);
+    syncStateToFirebase();
+}
+
+function resetKaabaImage() {
+    state.settings.kaabaImageSrc = DEFAULT_KAABA_SVG;
+    state.settings.kaabaScale = 1.0;
+    state.settings.kaabaOffsetY = 0;
+    kaabaImage.src = DEFAULT_KAABA_SVG;
+    if(document.getElementById('slider-kaaba-scale')) document.getElementById('slider-kaaba-scale').value = 100;
+    if(document.getElementById('slider-kaaba-offset-y')) document.getElementById('slider-kaaba-offset-y').value = 0;
+    syncStateToFirebase();
 }
 
 function toggleFullscreen() {
