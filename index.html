@@ -64,32 +64,41 @@
             font-family: 'Amiri', serif;
         }
 
+               /* Perbaikan Container agar tidak lonjong di HP */
         .portrait-container {
             width: 100%;
             max-width: 480px;
-            height: calc(100vh - 40px);
+            /* Gunakan max-height 100dvh agar responsif terhadap address bar browser HP */
+            height: 100dvh; 
             max-height: 853px;
-            aspect-ratio: 9 / 16;
+            /* Kunci rasio 9:16 */
+            aspect-ratio: 9 / 16; 
             margin: auto;
             position: relative;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             border-radius: 16px;
             overflow: hidden;
             background: #111827;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         @media (min-width: 1080px) and (min-height: 1920px) {
             .obs-mode .portrait-container {
                 max-width: 1080px;
                 max-height: 1920px;
-                height: 100vh;
+                height: 100dvh;
                 border-radius: 0;
             }
         }
 
+        /* PERBAIKAN UTAMA: Canvas tidak akan pernah ketarik */
         canvas {
             width: 100%;
             height: 100%;
+            /* Ini kunci agar gambar tidak lonjong/melebar */
+            object-fit: contain; 
             display: block;
         }
 
@@ -151,7 +160,7 @@
             <div class="w-full text-center mb-2 flex items-center justify-between px-2 max-w-[480px]">
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 live-dot"></span>
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-300">OBS Canvas Output (9:16)</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-300"></span>
                 </div>
                 <div class="flex items-center gap-2">
                     <button id="btn-audio-init" onclick="initAudioContext()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 rounded-md text-amber-400 transition">
@@ -168,19 +177,16 @@
                 
                 <div class="absolute top-4 left-4 bg-slate-950/80 backdrop-blur border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-lg pointer-events-none">
                     <i class="fa-solid fa-users text-amber-400 text-xs"></i>
-                    <span class="text-xs font-bold text-slate-200"><span id="live-active-count">0</span> FOLLOW + NAMA</span>
+                    <span class="text-xs font-bold text-slate-200"><span id="live-active-count">0</span> JAMAAH HAJI</span>
                 </div>
 
                 <div class="absolute top-4 right-4 bg-slate-950/80 backdrop-blur border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-lg pointer-events-none">
                     <i class="fa-solid fa-rotate-right text-emerald-400 text-xs"></i>
-                    <span class="text-xs font-bold text-slate-200"><span id="live-total-laps">0</span> Total Putaran</span>
+                    <span class="text-xs font-bold text-slate-200"><span id="live-total-laps"></span> FOLLOW + KOMEN </span>
                 </div>
             </div>
             
-            <p class="text-xs text-slate-500 mt-2 text-center">
-                <i class="fa-solid fa-circle-info text-amber-500/70 mr-1"></i>
-                Gunakan URL halaman ini pada <strong>OBS Browser Source</strong> dengan resolusi <strong>1080 x 1920</strong>.
-            </p>
+         
         </section>
 
         <!-- VIEW 2: DASHBOARD CONTROL ADMIN -->
