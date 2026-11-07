@@ -3,43 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIRTUAL TAWAF LIVE 2D</title>
+    <title>VIRTUAL TAWAF LIVE - OBS & Admin Dashboard</title>
 
-    <!-- PWA Setup -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
-    <link rel="apple-touch-icon" href="icon-192.png">
-
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS for UI Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- FontAwesome -->
+    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts -->
+    <!-- Google Fonts Inter & Amiriri (Islamic Font style) -->
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase App & Realtime Database SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         window.ref = ref;
         window.set = set;
         window.push = push;
         window.onValue = onValue;
         window.remove = remove;
+        window.update = update;
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC1kMjsw6YP0ypb-FNY0fymIyNN784moa4",
-            authDomain: "virtual-live-90cf0.firebaseapp.com",
-            databaseURL: "https://virtual-live-90cf0-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "virtual-live-90cf0",
-            storageBucket: "virtual-live-90cf0.firebasestorage.app",
-            messagingSenderId: "964693320155",
-            appId: "1:964693320155:web:c5f334851a7703c72607fe",
-            measurementId: "G-CWJ46MT37P"
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDemoKeyForVirtualTawafLive2DKey",
+            authDomain: "virtual-tawaf-live.firebaseapp.com",
+            databaseURL: "https://virtual-tawaf-live-default-rtdb.firebaseio.com",
+            projectId: "virtual-tawaf-live",
+            storageBucket: "virtual-tawaf-live.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: typeof __app_id !== 'undefined' ? __app_id : "virtual-tawaf-live-app"
         };
 
         const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'virtual-tawaf-demo';
@@ -49,31 +44,69 @@
             const app = initializeApp(firebaseConfig);
             window.db = getDatabase(app);
             window.auth = getAuth(app);
-            signInAnonymously(window.auth).catch(err => console.warn("Firebase Auth Fallback:", err));
-            console.log("✅ Firebase Core Berhasil Diinisialisasi!");
-            window.dispatchEvent(new Event('firebaseReady'));
+            signInAnonymously(window.auth).catch(err => console.warn("Firebase Auth Fallback to Local State:", err));
         } catch (e) {
-            console.warn("❌ Gagal Inisialisasi Firebase:", e);
+            console.warn("Using Local State Fallback mode due to Firebase connection limits:", e);
         }
     </script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
-        .font-arabic { font-family: 'Amiri', serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .font-arabic {
+            font-family: 'Amiri', serif;
+        }
+
         .portrait-container {
-            width: 100%; max-width: 480px; height: calc(100vh - 40px); max-height: 853px;
-            aspect-ratio: 9 / 16; margin: auto; position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); border-radius: 16px;
-            overflow: hidden; background: #111827;
+            width: 100%;
+            max-width: 480px;
+            height: calc(100vh - 40px);
+            max-height: 853px;
+            aspect-ratio: 9 / 16;
+            margin: auto;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            border-radius: 16px;
+            overflow: hidden;
+            background: #111827;
         }
+
         @media (min-width: 1080px) and (min-height: 1920px) {
-            .obs-mode .portrait-container { max-width: 1080px; max-height: 1920px; height: 100vh; border-radius: 0; }
+            .obs-mode .portrait-container {
+                max-width: 1080px;
+                max-height: 1920px;
+                height: 100vh;
+                border-radius: 0;
+            }
         }
-        canvas { width: 100%; height: 100%; display: block; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-        .live-dot { box-shadow: 0 0 10px #22c55e; animation: pulse-dot 1.5s infinite; }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+
+        .live-dot {
+            box-shadow: 0 0 10px #22c55e;
+            animation: pulse-dot 1.5s infinite;
+        }
+
         @keyframes pulse-dot {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
@@ -83,7 +116,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
 
-    <!-- HEADER -->
+    <!-- TOP NAVIGATION / MODE SWITCHER -->
     <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-50 px-4 py-2.5">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -92,11 +125,12 @@
                 </div>
                 <div>
                     <h1 class="font-extrabold text-base tracking-wide bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 bg-clip-text text-transparent">
-                        VIRTUAL TAWAF LIVE 2D
+                        VIRTUAL TAWAF LIVE
                     </h1>
                     <p class="text-[10px] text-slate-400">TikTok LIVE OBS Interactive Canvas</p>
                 </div>
             </div>
+
             <div class="flex items-center gap-2">
                 <button id="btn-mode-display" onclick="switchView('display')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-md">
                     <i class="fa-solid fa-desktop"></i> <span class="hidden sm:inline">Tampilan</span> OBS Live
@@ -109,7 +143,8 @@
     </header>
 
     <main class="max-w-7xl mx-auto p-2 sm:p-4 md:p-6">
-        <!-- VIEW DISPLAY -->
+
+        <!-- VIEW 1: DISPLAY LIVE -->
         <section id="view-display" class="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] py-2">
             <div class="w-full text-center mb-2 flex items-center justify-between px-2 max-w-[480px]">
                 <div class="flex items-center gap-2">
@@ -125,58 +160,92 @@
                     </button>
                 </div>
             </div>
+
             <div class="portrait-container border-2 border-slate-800" id="obs-canvas-wrapper">
                 <canvas id="tawafCanvas" width="1080" height="1920"></canvas>
+                
                 <div class="absolute top-4 left-4 bg-slate-950/80 backdrop-blur border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-lg pointer-events-none">
                     <i class="fa-solid fa-users text-amber-400 text-xs"></i>
                     <span class="text-xs font-bold text-slate-200"><span id="live-active-count">0</span> Jamaah Tawaf</span>
                 </div>
+
                 <div class="absolute top-4 right-4 bg-slate-950/80 backdrop-blur border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-lg pointer-events-none">
                     <i class="fa-solid fa-rotate-right text-emerald-400 text-xs"></i>
                     <span class="text-xs font-bold text-slate-200"><span id="live-total-laps">0</span> Total Putaran</span>
                 </div>
             </div>
+            
             <p class="text-xs text-slate-500 mt-2 text-center">
                 <i class="fa-solid fa-circle-info text-amber-500/70 mr-1"></i>
                 Gunakan URL halaman ini pada <strong>OBS Browser Source</strong> dengan resolusi <strong>1080 x 1920</strong>.
             </p>
         </section>
 
-        <!-- VIEW ADMIN -->
+        <!-- VIEW 2: DASHBOARD CONTROL ADMIN -->
         <section id="view-admin" class="hidden space-y-6">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl font-bold"><i class="fa-solid fa-user-plus"></i></div>
-                    <div><p class="text-xs text-slate-400">Total Ditambah</p><h3 id="stat-total-spawned" class="text-xl font-extrabold text-slate-100">0</h3></div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl font-bold">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Total Ditolak/Ditambah</p>
+                        <h3 id="stat-total-spawned" class="text-xl font-extrabold text-slate-100">0</h3>
+                    </div>
                 </div>
+
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl font-bold"><i class="fa-solid fa-walking"></i></div>
-                    <div><p class="text-xs text-slate-400">Aktif Bergerak</p><h3 id="stat-active" class="text-xl font-extrabold text-emerald-400">0</h3></div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl font-bold">
+                        <i class="fa-solid fa-walking"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Aktif Bergerak</p>
+                        <h3 id="stat-active" class="text-xl font-extrabold text-emerald-400">0</h3>
+                    </div>
                 </div>
+
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl font-bold"><i class="fa-solid fa-flag-checkered"></i></div>
-                    <div><p class="text-xs text-slate-400">Selesai 5 Tawaf</p><h3 id="stat-completed" class="text-xl font-extrabold text-amber-400">0</h3></div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl font-bold">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Selesai 5 Tawaf</p>
+                        <h3 id="stat-completed" class="text-xl font-extrabold text-amber-400">0</h3>
+                    </div>
                 </div>
+
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl font-bold"><i class="fa-solid fa-rotate text-lg"></i></div>
-                    <div><p class="text-xs text-slate-400">Total Putaran</p><h3 id="stat-laps" class="text-xl font-extrabold text-purple-300">0</h3></div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl font-bold">
+                        <i class="fa-solid fa-rotate text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Total Putaran Putar</p>
+                        <h3 id="stat-laps" class="text-xl font-extrabold text-purple-300">0</h3>
+                    </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
                 <div class="lg:col-span-5 space-y-6">
-                    <!-- Form Spawn -->
+                    
+                    <!-- Form 1: Input Username -->
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
-                        <h2 class="text-base font-bold text-slate-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-plus text-amber-400"></i> Tambah Username Gift TikTok</h2>
+                        <h2 class="text-base font-bold text-slate-100 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-plus text-amber-400"></i> Tambah Username Gift TikTok
+                        </h2>
+
                         <form id="form-spawn-user" onsubmit="handleSpawnUser(event)" class="space-y-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-300 mb-1">Username Penonton</label>
                                 <div class="relative">
                                     <span class="absolute left-3.5 top-2.5 text-slate-500 text-sm font-bold">@</span>
-                                    <input type="text" id="input-username" required placeholder="misal: ahmad_hidayat" class="w-full bg-slate-950 border border-slate-700 rounded-xl py-2.5 pl-8 pr-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
+                                    <input type="text" id="input-username" required placeholder="misal: ahmad_hidayat" 
+                                           class="w-full bg-slate-950 border border-slate-700 rounded-xl py-2.5 pl-8 pr-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
                                 </div>
                             </div>
+
                             <div>
                                 <label class="block text-xs font-semibold text-slate-300 mb-2">Kategori Gift</label>
                                 <div class="grid grid-cols-3 gap-2">
@@ -184,38 +253,21 @@
                                         <input type="radio" name="giftCategory" value="biasa" checked class="sr-only">
                                         <div class="w-4 h-4 rounded-full bg-slate-200 border border-slate-400 mx-auto mb-1"></div>
                                         <span class="block text-xs font-bold text-slate-200">BIASA</span>
+                                        <span class="text-[10px] text-slate-400">48px • Putih</span>
                                     </label>
+
                                     <label class="cursor-pointer border border-slate-700 rounded-xl p-2.5 text-center transition hover:bg-slate-800 bg-slate-950 has-[:checked]:border-blue-400 has-[:checked]:bg-slate-800">
                                         <input type="radio" name="giftCategory" value="sedang" class="sr-only">
                                         <div class="w-5 h-5 rounded-full bg-slate-100 border-2 border-blue-400 mx-auto mb-1 shadow"></div>
                                         <span class="block text-xs font-bold text-blue-300">SEDANG</span>
+                                        <span class="text-[10px] text-slate-400">64px • Shadow</span>
                                     </label>
+
                                     <label class="cursor-pointer border border-slate-700 rounded-xl p-2.5 text-center transition hover:bg-slate-800 bg-slate-950 has-[:checked]:border-amber-400 has-[:checked]:bg-slate-800">
                                         <input type="radio" name="giftCategory" value="besar" class="sr-only">
                                         <div class="w-6 h-6 rounded-full bg-gradient-to-r from-amber-300 to-amber-500 border-2 border-yellow-200 mx-auto mb-1 shadow-lg shadow-amber-500/40"></div>
                                         <span class="block text-xs font-bold text-amber-400">BESAR</span>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <!-- BARU: Pilihan Mode Karakter -->
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-300 mb-2">Tampilan Karakter</label>
-                                <div class="grid grid-cols-3 gap-2">
-                                    <label class="cursor-pointer border border-slate-700 rounded-xl p-2 text-center transition hover:bg-slate-800 bg-slate-950 has-[:checked]:border-emerald-400 has-[:checked]:bg-slate-800">
-                                        <input type="radio" name="characterMode" value="text" checked class="sr-only">
-                                        <i class="fa-solid fa-font text-emerald-400 mb-1"></i>
-                                        <span class="block text-[10px] font-bold text-slate-200">Teks Saja</span>
-                                    </label>
-                                    <label class="cursor-pointer border border-slate-700 rounded-xl p-2 text-center transition hover:bg-slate-800 bg-slate-950 has-[:checked]:border-emerald-400 has-[:checked]:bg-slate-800">
-                                        <input type="radio" name="characterMode" value="shape" class="sr-only">
-                                        <i class="fa-solid fa-circle text-emerald-400 mb-1"></i>
-                                        <span class="block text-[10px] font-bold text-slate-200">Teks + Shape</span>
-                                    </label>
-                                    <label class="cursor-pointer border border-slate-700 rounded-xl p-2 text-center transition hover:bg-slate-800 bg-slate-950 has-[:checked]:border-emerald-400 has-[:checked]:bg-slate-800">
-                                        <input type="radio" name="characterMode" value="icon" class="sr-only">
-                                        <i class="fa-solid fa-user text-emerald-400 mb-1"></i>
-                                        <span class="block text-[10px] font-bold text-slate-200">Teks + Icon</span>
+                                        <span class="text-[10px] text-amber-200/70">84px • Glow Gold</span>
                                     </label>
                                 </div>
                             </div>
@@ -226,47 +278,87 @@
                         </form>
                     </div>
 
-                    <!-- Kontrol -->
+                    <!-- Form 2: Kontrol Simulator -->
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-                        <h2 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-sliders text-amber-400"></i> Kontrol Simulator</h2>
+                        <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-amber-400"></i> Kontrol Simulator Realtime
+                        </h2>
+
                         <div>
-                            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1"><span>Kecepatan</span><span id="val-speed-multiplier" class="text-amber-400 font-bold">1.0x</span></div>
-                            <input type="range" id="slider-speed" min="0.3" max="3.0" step="0.1" value="1.0" oninput="updateGlobalSettings()" class="w-full accent-amber-500 bg-slate-950 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                                <span>Kecepatan Pergerakan Tawaf</span>
+                                <span id="val-speed-multiplier" class="text-amber-400 font-bold">1.0x</span>
+                            </div>
+                            <input type="range" id="slider-speed" min="0.3" max="3.0" step="0.1" value="1.0" oninput="updateGlobalSettings()"
+                                   class="w-full accent-amber-500 bg-slate-950 rounded-lg cursor-pointer">
                         </div>
+
                         <div>
-                            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1"><span>Ukuran Karakter</span><span id="val-size-scale" class="text-amber-400 font-bold">100%</span></div>
-                            <input type="range" id="slider-size" min="50" max="180" step="10" value="100" oninput="updateGlobalSettings()" class="w-full accent-amber-500 bg-slate-950 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                                <span>Skala Ukuran Karakter</span>
+                                <span id="val-size-scale" class="text-amber-400 font-bold">100%</span>
+                            </div>
+                            <input type="range" id="slider-size" min="50" max="180" step="10" value="100" oninput="updateGlobalSettings()"
+                                   class="w-full accent-amber-500 bg-slate-950 rounded-lg cursor-pointer">
                         </div>
+
+                        <!-- ===== VOLUME 1: AUDIO UNGGAHAN (TERPISAH) ===== -->
+                        <div class="border-t border-slate-800 pt-3">
+                            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                                <span><i class="fa-solid fa-music text-purple-400 mr-1"></i> Volume Audio Unggahan (Musik)</span>
+                                <span id="val-volume-bg" class="text-purple-400 font-bold">80%</span>
+                            </div>
+                            <input type="range" id="slider-volume-bg" min="0" max="100" step="5" value="80" oninput="updateGlobalSettings()"
+                                   class="w-full accent-purple-500 bg-slate-950 rounded-lg cursor-pointer">
+                            <p class="text-[10px] text-slate-500 mt-1">Hanya mengatur volume file audio yang di-upload</p>
+                        </div>
+
+                        <!-- ===== VOLUME 2: AUDIO TTS PANGGILAN NAMA (TERPISAH) ===== -->
                         <div>
-                            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1"><span>Volume Suara</span><span id="val-sound-vol" class="text-amber-400 font-bold">80%</span></div>
-                            <input type="range" id="slider-volume" min="0" max="100" step="5" value="80" oninput="updateGlobalSettings()" class="w-full accent-amber-500 bg-slate-950 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                                <span><i class="fa-solid fa-microphone-lines text-emerald-400 mr-1"></i> Volume Panggilan Nama (TTS)</span>
+                                <span id="val-volume-tts" class="text-emerald-400 font-bold">80%</span>
+                            </div>
+                            <input type="range" id="slider-volume-tts" min="0" max="100" step="5" value="80" oninput="updateGlobalSettings()"
+                                   class="w-full accent-emerald-500 bg-slate-950 rounded-lg cursor-pointer">
+                            <p class="text-[10px] text-slate-500 mt-1">Hanya mengatur volume suara "Selamat datang [nama]"</p>
                         </div>
+
                         <div class="pt-2 grid grid-cols-2 gap-2">
-                            <button onclick="togglePauseAnimation()" id="btn-pause-toggle" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-1.5"><i class="fa-solid fa-pause text-amber-400"></i> Jeda</button>
-                            <button onclick="clearAllUsers()" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-1.5"><i class="fa-solid fa-trash-can"></i> Reset</button>
+                            <button onclick="togglePauseAnimation()" id="btn-pause-toggle" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-pause text-amber-400"></i> Jeda Animasi
+                            </button>
+                            <button onclick="clearAllUsers()" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-trash-can"></i> Reset Karakter
+                            </button>
                         </div>
                     </div>
 
-                    <!-- FORM PENGATURAN GAMBAR KA'BAH (Dikembalikan) -->
+                    <!-- Form 3: Gambar Ka'bah Custom -->
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                         <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
                             <i class="fa-solid fa-image text-amber-400"></i> Pengaturan Gambar Ka'bah
                         </h2>
+
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1.5">Upload / Pilih Gambar Ka'bah Custom</label>
                             <input type="file" id="input-kaaba-file" accept="image/png, image/jpeg, image/webp" onchange="handleKaabaUpload(event)"
                                    class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-amber-400 hover:file:bg-slate-700 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl">
                         </div>
+
                         <div class="grid grid-cols-2 gap-3 pt-1">
                             <div>
                                 <label class="block text-[11px] font-semibold text-slate-400 mb-1">Skala Ka'bah</label>
-                                <input type="range" id="slider-kaaba-scale" min="50" max="200" step="5" value="100" oninput="updateKaabaAdjustments()" class="w-full accent-amber-500 bg-slate-950 rounded-lg">
+                                <input type="range" id="slider-kaaba-scale" min="50" max="200" step="5" value="100" oninput="updateKaabaAdjustments()"
+                                       class="w-full accent-amber-500 bg-slate-950 rounded-lg">
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-slate-400 mb-1">Offset Vertikal (Y)</label>
-                                <input type="range" id="slider-kaaba-offset-y" min="-100" max="100" step="5" value="0" oninput="updateKaabaAdjustments()" class="w-full accent-amber-500 bg-slate-950 rounded-lg">
+                                <input type="range" id="slider-kaaba-offset-y" min="-100" max="100" step="5" value="0" oninput="updateKaabaAdjustments()"
+                                       class="w-full accent-amber-500 bg-slate-950 rounded-lg">
                             </div>
                         </div>
+
                         <div class="flex items-center gap-2 pt-1">
                             <button onclick="resetKaabaImage()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-bold py-2 rounded-xl transition">
                                 <i class="fa-solid fa-rotate-left mr-1"></i> Gambar Default
@@ -274,15 +366,63 @@
                         </div>
                     </div>
 
+                    <!-- ===== FORM 4: BACKGROUND & AUDIO CUSTOM (FITUR BARU) ===== -->
+                    <div class="bg-slate-900 border border-amber-500/30 rounded-2xl p-5 shadow-xl space-y-4 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                        <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-photo-film text-amber-400"></i> Media Custom: Background & Audio
+                            <span class="text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-bold">BARU</span>
+                        </h2>
+
+                        <!-- Upload Background -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                <i class="fa-solid fa-panorama text-blue-400 mr-1"></i> Upload Gambar Background (Latar)
+                            </label>
+                            <input type="file" id="input-bg-file" accept="image/png, image/jpeg, image/webp" onchange="handleBgUpload(event)"
+                                   class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-blue-400 hover:file:bg-slate-700 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl">
+                            <p class="text-[10px] text-slate-500 mt-1">Titik & gerakan tawaf tetap sama, hanya latar yang diganti.</p>
+                            <button onclick="resetBgImage()" class="mt-2 w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-bold py-1.5 rounded-lg transition">
+                                <i class="fa-solid fa-rotate-left mr-1"></i> Reset Background Default
+                            </button>
+                        </div>
+
+                        <!-- Upload Audio -->
+                        <div class="border-t border-slate-800 pt-3">
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                                <i class="fa-solid fa-file-audio text-purple-400 mr-1"></i> Upload Audio (MP3/WAV)
+                            </label>
+                            <input type="file" id="input-audio-file" accept="audio/*" onchange="handleAudioUpload(event)"
+                                   class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-purple-400 hover:file:bg-slate-700 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl">
+                            
+                            <div class="mt-2 flex items-center justify-between bg-slate-950 border border-slate-800 rounded-xl px-3 py-2">
+                                <span id="audio-filename" class="text-[11px] text-slate-400 truncate flex-1 mr-2">Belum ada audio</span>
+                                <button id="btn-audio-toggle" onclick="toggleAudioPlay()" class="text-xs font-bold bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 px-2.5 py-1 rounded-lg transition flex items-center gap-1 shrink-0">
+                                    <i id="audio-btn-icon" class="fa-solid fa-play"></i>
+                                    <span id="audio-btn-text">Putar Audio</span>
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-slate-500 mt-1">Volume diatur via slider "Volume Audio Unggahan" di atas (terpisah dari TTS).</p>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Tabel Users -->
+                <!-- Right Column: Active Users Table -->
                 <div class="lg:col-span-7">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
-                            <div><h2 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-users text-amber-400"></i> Jamaah Tawaf Aktif</h2></div>
-                            <span id="badge-active-count" class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-extrabold text-xs px-2.5 py-1 rounded-lg">0 Aktif</span>
+                            <div>
+                                <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                                    <i class="fa-solid fa-users text-amber-400"></i> Jamaah Tawaf Aktif
+                                </h2>
+                                <p class="text-xs text-slate-400">Daftar penonton yang sedang berjalan mengelilingi Ka'bah</p>
+                            </div>
+                            <span id="badge-active-count" class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-extrabold text-xs px-2.5 py-1 rounded-lg">
+                                0 Aktif
+                            </span>
                         </div>
+
                         <div class="flex-1 overflow-x-auto min-h-[300px]">
                             <table class="w-full text-left text-xs text-slate-300">
                                 <thead class="bg-slate-950 text-slate-400 uppercase font-bold text-[10px] tracking-wider">
@@ -290,31 +430,1038 @@
                                         <th class="py-3 px-3 rounded-l-xl">Username</th>
                                         <th class="py-3 px-2">Gift</th>
                                         <th class="py-3 px-2">Putaran</th>
-                                        <th class="py-3 px-2">Status</th>
+                                        <th class="py-3 px-2">Status Gerakan</th>
                                         <th class="py-3 px-3 text-right rounded-r-xl">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody id="table-users-body" class="divide-y divide-slate-800/60"></tbody>
+                                <tbody id="table-users-body" class="divide-y divide-slate-800/60">
+                                    <tr id="row-empty-placeholder">
+                                        <td colspan="5" class="py-12 text-center text-slate-500">
+                                            <i class="fa-solid fa-person-walking-arrow-right text-3xl mb-2 block opacity-40"></i>
+                                            Belum ada jamaah yang ditambahkan. Gunakan form di sebelah kiri untuk menambah penonton!
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
+
     </main>
 
-    <!-- LOAD LOGIC JS -->
-    <script src="app.js"></script>
-    
-    <!-- REGISTER SERVICE WORKER -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => console.log('✅ Service Worker registered:', registration.scope))
-                    .catch(error => console.error('❌ Service Worker registration failed:', error));
+        /* -------------------------------------------------------------
+         * 1. APP STATE & GLOBAL CONSTANTS
+         * ------------------------------------------------------------- */
+        const CANVAS_WIDTH = 1080;
+        const CANVAS_HEIGHT = 1920;
+        
+        const CENTER_X = CANVAS_WIDTH / 2;
+        const CENTER_Y = CANVAS_HEIGHT / 2 - 50;
+        const TAWAF_RADIUS_X = 320;
+        const TAWAF_RADIUS_Y = 220;
+        
+        const ENTRY_X = CENTER_X;
+        const ENTRY_Y = CANVAS_HEIGHT - 120;
+
+        // Lane config untuk collision avoidance (tidak terlalu lebar)
+        const LANE_COUNT = 6;
+        const LANE_SPACING = 16;
+        const LANE_JITTER = 6;
+        const MIN_USER_DISTANCE = 55; // jarak minimum antar user
+        const SEPARATION_PUSH = 0.15;
+
+        const DEFAULT_KAABA_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="240" viewBox="0 0 220 240"><rect x="30" y="40" width="160" height="170" fill="%23111111" rx="8"/><path d="M 30 40 L 190 40 L 190 85 L 30 85 Z" fill="%23d97706"/><rect x="35" y="45" width="150" height="35" fill="none" stroke="%23fef08a" stroke-width="3" stroke-dasharray="6,4"/><text x="110" y="68" fill="%23fef08a" font-size="16" font-family="sans-serif" font-weight="bold" text-anchor="middle">ﷲ</text><rect x="50" y="110" width="35" height="75" fill="%23b45309" stroke="%23fef08a" stroke-width="2"/><circle cx="170" cy="165" r="12" fill="%23475569" stroke="%23cbd5e1" stroke-width="4"/><circle cx="170" cy="165" r="5" fill="%230f172a"/></svg>`;
+
+        let state = {
+            activeUsers: [],
+            stats: {
+                totalSpawned: 0,
+                completed: 0,
+                totalLaps: 0
+            },
+            settings: {
+                isPaused: false,
+                speedMultiplier: 1.0,
+                sizeScale: 1.0,
+                // === VOLUME TERPISAH ===
+                bgAudioVolume: 0.8,   // volume audio unggahan (musik)
+                ttsVolume: 0.8,       // volume TTS panggilan nama
+                soundMuted: false,
+                // === MEDIA CUSTOM ===
+                kaabaImageSrc: DEFAULT_KAABA_SVG,
+                kaabaScale: 1.0,
+                kaabaOffsetY: 0,
+                bgImageSrc: null,     // background custom
+                audioFileName: null   // nama file audio yang diupload
+            }
+        };
+
+        let canvas, ctx;
+        let kaabaImage = new Image();
+        let bgCustomImage = new Image();
+        let customBgLoaded = false;
+        let audioCtx = null;
+
+        // Audio unggahan via HTMLAudioElement (terpisah dari SFX/TTS)
+        let uploadedAudio = new Audio();
+        uploadedAudio.loop = true;
+        let isUploadedAudioPlaying = false;
+
+        // IndexedDB
+        const DB_NAME = "VirtualTawafLiveDB";
+        let dbInstance = null;
+
+        /* -------------------------------------------------------------
+         * 2. INDEXEDDB HELPERS
+         * ------------------------------------------------------------- */
+        function initDB() {
+            return new Promise((resolve) => {
+                try {
+                    const request = indexedDB.open(DB_NAME, 1);
+                    request.onupgradeneeded = (e) => {
+                        try {
+                            const db = e.target.result;
+                            if (!db.objectStoreNames.contains('files')) {
+                                db.createObjectStore('files');
+                            }
+                        } catch (err) { console.warn("IDB upgrade err:", err); }
+                    };
+                    request.onsuccess = (e) => { dbInstance = e.target.result; resolve(dbInstance); };
+                    request.onerror = () => resolve(null);
+                } catch (e) { console.warn("IDB init err:", e); resolve(null); }
             });
         }
+
+        async function saveFileToDB(key, data) {
+            try {
+                if (!dbInstance) await initDB();
+                if (!dbInstance) return;
+                return new Promise((resolve) => {
+                    try {
+                        const tx = dbInstance.transaction('files', 'readwrite');
+                        const store = tx.objectStore('files');
+                        const req = store.put(data, key);
+                        req.onsuccess = () => resolve();
+                        req.onerror = () => resolve();
+                        tx.oncomplete = () => resolve();
+                        tx.onerror = () => resolve();
+                    } catch (e) { resolve(); }
+                });
+            } catch (err) { console.warn("saveFileToDB err:", err); }
+        }
+
+        async function getFileFromDB(key) {
+            try {
+                if (!dbInstance) await initDB();
+                if (!dbInstance) return null;
+                return new Promise((resolve) => {
+                    try {
+                        const tx = dbInstance.transaction('files', 'readonly');
+                        const store = tx.objectStore('files');
+                        const req = store.get(key);
+                        req.onsuccess = () => resolve(req.result);
+                        req.onerror = () => resolve(null);
+                    } catch (e) { resolve(null); }
+                });
+            } catch (err) { return null; }
+        }
+
+        /* -------------------------------------------------------------
+         * 3. INITIALIZATION
+         * ------------------------------------------------------------- */
+        window.addEventListener('DOMContentLoaded', async () => {
+            canvas = document.getElementById('tawafCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = CANVAS_WIDTH;
+            canvas.height = CANVAS_HEIGHT;
+
+            // Load dari local storage & indexedDB
+            await loadStateFromStorage();
+
+            // Load default images
+            if (state.settings.kaabaImageSrc) kaabaImage.src = state.settings.kaabaImageSrc;
+            else kaabaImage.src = DEFAULT_KAABA_SVG;
+
+            // Load custom background dari IndexedDB jika ada
+            const bgData = await getFileFromDB('custom_bg');
+            if (bgData) {
+                bgCustomImage.src = bgData;
+                bgCustomImage.onload = () => { customBgLoaded = true; };
+                state.settings.bgImageSrc = bgData;
+            }
+
+            // Load custom audio dari IndexedDB jika ada
+            const audioData = await getFileFromDB('custom_audio');
+            if (audioData) {
+                uploadedAudio.src = audioData;
+                const audioName = localStorage.getItem('vt_audio_name') || 'Audio Custom';
+                state.settings.audioFileName = audioName;
+                updateAudioUI();
+            }
+            if (state.settings.bgAudioVolume !== undefined) {
+                uploadedAudio.volume = state.settings.bgAudioVolume;
+            }
+
+            // Firebase listeners
+            initFirebaseListeners();
+
+            // Restore saved kaaba file name
+            const savedFileName = localStorage.getItem('vt_kaaba_name');
+            if (savedFileName) {
+                // sudah di-handle via indexedDB
+            }
+
+            requestAnimationFrame(renderCanvasLoop);
+        });
+
+        /* -------------------------------------------------------------
+         * 4. VIEW SWITCH
+         * ------------------------------------------------------------- */
+        function switchView(viewName) {
+            const displaySec = document.getElementById('view-display');
+            const adminSec = document.getElementById('view-admin');
+            const btnDisplay = document.getElementById('btn-mode-display');
+            const btnAdmin = document.getElementById('btn-mode-admin');
+
+            if (viewName === 'display') {
+                displaySec.classList.remove('hidden');
+                adminSec.classList.add('hidden');
+                btnDisplay.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-md";
+                btnAdmin.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700";
+            } else {
+                displaySec.classList.add('hidden');
+                adminSec.classList.remove('hidden');
+                btnAdmin.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-md";
+                btnDisplay.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700";
+            }
+        }
+
+        /* -------------------------------------------------------------
+         * 5. AUDIO CONTEXT (SFX + TTS)
+         * ------------------------------------------------------------- */
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const btnInit = document.getElementById('btn-audio-init');
+                if (btnInit) {
+                    btnInit.innerHTML = `<i class="fa-solid fa-volume-high mr-1"></i> Suara Aktif`;
+                    btnInit.classList.replace('text-amber-400', 'text-emerald-400');
+                }
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        // TTS - pakai ttsVolume (terpisah dari bgAudioVolume)
+        function speakWelcome(username) {
+            if (!('speechSynthesis' in window)) return;
+            if (state.settings.soundMuted || state.settings.ttsVolume <= 0) return;
+
+            try {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(`Selamat datang ${username}`);
+                utterance.lang = 'id-ID';
+                utterance.volume = state.settings.ttsVolume; // <--- VOLUME TTS
+                utterance.rate = 1.0;
+                utterance.pitch = 1.1;
+
+                const voices = window.speechSynthesis.getVoices();
+                const idVoice = voices.find(v => v.lang.includes('id') || v.lang.includes('ID'));
+                if (idVoice) utterance.voice = idVoice;
+
+                window.speechSynthesis.speak(utterance);
+            } catch (e) { console.warn("TTS err:", e); }
+        }
+
+        // SFX spawn - pakai bgAudioVolume
+        function playSynthesizedSound(type) {
+            if (!audioCtx || state.settings.soundMuted || state.settings.bgAudioVolume <= 0) return;
+
+            try {
+                const now = audioCtx.currentTime;
+                const masterGain = audioCtx.createGain();
+                masterGain.gain.value = state.settings.bgAudioVolume; // <--- VOLUME SFX
+                masterGain.connect(audioCtx.destination);
+
+                if (type === 'spawn_biasa') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                    osc.connect(gain); gain.connect(masterGain);
+                    osc.start(now); osc.stop(now + 0.08);
+                } else if (type === 'spawn_sedang') {
+                    [523.25, 659.25, 783.99].forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+                        gain.gain.setValueAtTime(0.25, now + idx * 0.04);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                        osc.connect(gain); gain.connect(masterGain);
+                        osc.start(now + idx * 0.04); osc.stop(now + 0.3);
+                    });
+                } else if (type === 'spawn_besar') {
+                    [261.63, 329.63, 392.00, 523.25].forEach((freq) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now);
+                        gain.gain.setValueAtTime(0.3, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+                        osc.connect(gain); gain.connect(masterGain);
+                        osc.start(now); osc.stop(now + 0.8);
+                    });
+                } else if (type === 'finish_tawaf') {
+                    [659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+                        gain.gain.setValueAtTime(0.2, now + idx * 0.06);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                        osc.connect(gain); gain.connect(masterGain);
+                        osc.start(now + idx * 0.06); osc.stop(now + 0.4);
+                    });
+                }
+            } catch (e) { console.warn("SFX err:", e); }
+        }
+
+        /* -------------------------------------------------------------
+         * 6. UPLOADED AUDIO (terpisah dari TTS/SFX)
+         * ------------------------------------------------------------- */
+        function toggleAudioPlay() {
+            if (!uploadedAudio.src) return;
+
+            if (isUploadedAudioPlaying) {
+                uploadedAudio.pause();
+                isUploadedAudioPlaying = false;
+                updateAudioUI();
+            } else {
+                uploadedAudio.volume = state.settings.bgAudioVolume;
+                const p = uploadedAudio.play();
+                if (p !== undefined) {
+                    p.then(() => { isUploadedAudioPlaying = true; updateAudioUI(); })
+                     .catch(err => { console.warn("Audio play blocked:", err); isUploadedAudioPlaying = false; updateAudioUI(); });
+                }
+            }
+        }
+
+        function updateAudioUI() {
+            const icon = document.getElementById('audio-btn-icon');
+            const text = document.getElementById('audio-btn-text');
+            const fname = document.getElementById('audio-filename');
+            if (icon) icon.className = isUploadedAudioPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
+            if (text) text.innerText = isUploadedAudioPlaying ? "Hentikan" : "Putar Audio";
+            if (fname && state.settings.audioFileName) fname.innerText = state.settings.audioFileName;
+        }
+
+        async function handleAudioUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const dataUrl = ev.target.result;
+                uploadedAudio.src = dataUrl;
+                state.settings.audioFileName = file.name;
+                localStorage.setItem('vt_audio_name', file.name);
+                await saveFileToDB('custom_audio', dataUrl);
+                updateAudioUI();
+                if (isUploadedAudioPlaying) {
+                    uploadedAudio.volume = state.settings.bgAudioVolume;
+                    uploadedAudio.play().catch(() => { isUploadedAudioPlaying = false; updateAudioUI(); });
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /* -------------------------------------------------------------
+         * 7. BACKGROUND UPLOAD (TETAP PERTAHANKAN TITIK & GERAKAN TAWAF)
+         * ------------------------------------------------------------- */
+        async function handleBgUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const dataUrl = ev.target.result;
+                bgCustomImage.src = dataUrl;
+                bgCustomImage.onload = () => { customBgLoaded = true; };
+                state.settings.bgImageSrc = dataUrl;
+                await saveFileToDB('custom_bg', dataUrl);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function resetBgImage() {
+            customBgLoaded = false;
+            state.settings.bgImageSrc = null;
+            await saveFileToDB('custom_bg', null);
+            const input = document.getElementById('input-bg-file');
+            if (input) input.value = '';
+            // Catatan: orbit tawaf TIDAK berubah, hanya background default yang dirender lagi
+        }
+
+        /* -------------------------------------------------------------
+         * 8. FIREBASE SYNC
+         * ------------------------------------------------------------- */
+        function initFirebaseListeners() {
+            if (!window.db) return;
+            const dbRef = window.db;
+            const appId = window.appId || 'default-app';
+
+            const usersRef = ref(dbRef, `artifacts/${appId}/public/data/activeUsers`);
+            onValue(usersRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    state.activeUsers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                } else {
+                    state.activeUsers = [];
+                }
+                updateAdminTableUI();
+            });
+
+            const settingsRef = ref(dbRef, `artifacts/${appId}/public/data/settings`);
+            onValue(settingsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    state.settings = { ...state.settings, ...data };
+                    if (data.kaabaImageSrc) kaabaImage.src = data.kaabaImageSrc;
+                    if (data.bgAudioVolume !== undefined) uploadedAudio.volume = data.bgAudioVolume;
+                    updateSettingsUI();
+                }
+            });
+        }
+
+        function syncStateToFirebase() {
+            if (!window.db) return;
+            const appId = window.appId || 'default-app';
+            // Jangan sync image base64 besar ke firebase (biar hemat)
+            const { kaabaImageSrc, bgImageSrc, ...settingsToSync } = state.settings;
+            set(ref(window.db, `artifacts/${appId}/public/data/settings`), settingsToSync);
+        }
+
+        /* -------------------------------------------------------------
+         * 9. USER SPAWN + COLLISION AVOIDANCE SETUP
+         * ------------------------------------------------------------- */
+        function assignLaneOffset(usersList) {
+            // Hitung jumlah user yang sudah ada per lane
+            const laneUsage = new Array(LANE_COUNT).fill(0);
+            usersList.forEach(u => {
+                if (u.status !== 'finished' && typeof u.laneIndex === 'number') {
+                    laneUsage[u.laneIndex] = (laneUsage[u.laneIndex] || 0) + 1;
+                }
+            });
+
+            // Pilih lane paling kosong
+            let bestLane = 0;
+            for (let i = 1; i < LANE_COUNT; i++) {
+                if (laneUsage[i] < laneUsage[bestLane]) bestLane = i;
+            }
+
+            // Offset berdasarkan lane: -40..+40 (tidak terlalu lebar)
+            const laneCenter = (bestLane - (LANE_COUNT - 1) / 2) * LANE_SPACING;
+            const jitter = (Math.random() - 0.5) * 2 * LANE_JITTER;
+            const offset = laneCenter + jitter;
+
+            return { laneIndex: bestLane, radiusOffset: offset };
+        }
+
+        function handleSpawnUser(e) {
+            e.preventDefault();
+            initAudioContext();
+
+            const usernameInput = document.getElementById('input-username');
+            const username = usernameInput.value.trim().replace(/^@/, '');
+            if (!username) return;
+
+            const category = document.querySelector('input[name="giftCategory"]:checked').value;
+            const userId = 'usr_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+
+            // === COLLISION AVOIDANCE: pilih lane kosong ===
+            const laneData = assignLaneOffset(state.activeUsers);
+
+            const speedVar = 0.9 + Math.random() * 0.2;
+
+            const newUser = {
+                id: userId,
+                username: username,
+                category: category,
+                startTime: Date.now(),
+                completedLaps: 0,
+                status: 'entering',
+                laneIndex: laneData.laneIndex,
+                radiusOffset: laneData.radiusOffset,
+                speedVar: speedVar
+            };
+
+            state.activeUsers.push(newUser);
+            state.stats.totalSpawned++;
+
+            playSynthesizedSound(`spawn_${category}`);
+            speakWelcome(username);
+
+            if (window.db) {
+                const appId = window.appId || 'default-app';
+                set(ref(window.db, `artifacts/${appId}/public/data/activeUsers/${userId}`), newUser);
+            }
+
+            usernameInput.value = '';
+            updateAdminTableUI();
+        }
+
+        function removeUser(userId) {
+            state.activeUsers = state.activeUsers.filter(u => u.id !== userId);
+            if (window.db) {
+                const appId = window.appId || 'default-app';
+                remove(ref(window.db, `artifacts/${appId}/public/data/activeUsers/${userId}`));
+            }
+            updateAdminTableUI();
+        }
+
+        function clearAllUsers() {
+            state.activeUsers = [];
+            if (window.db) {
+                const appId = window.appId || 'default-app';
+                set(ref(window.db, `artifacts/${appId}/public/data/activeUsers`), {});
+            }
+            updateAdminTableUI();
+        }
+
+        /* -------------------------------------------------------------
+         * 10. SEPARATION FORCE (mencegah tumpukan antar user di lane sama)
+         * ------------------------------------------------------------- */
+        function applySeparation(positions) {
+            // positions: [{id, x, y, radiusOffset, ...}]
+            for (let i = 0; i < positions.length; i++) {
+                for (let j = i + 1; j < positions.length; j++) {
+                    const a = positions[i];
+                    const b = positions[j];
+                    const dx = b.x - a.x;
+                    const dy = b.y - a.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < MIN_USER_DISTANCE && dist > 0.01) {
+                        const overlap = (MIN_USER_DISTANCE - dist) / 2;
+                        const nx = dx / dist;
+                        const ny = dy / dist;
+
+                        // Push radiusOffset (bukan x/y langsung) agar tetap di orbit
+                        // Cari apakah searah dengan radius dari center
+                        const aRad = Math.atan2(a.y - CENTER_Y, a.x - CENTER_X);
+                        const bRad = Math.atan2(b.y - CENTER_Y, b.x - CENTER_X);
+                        const pushDirA = Math.cos(aRad) * nx + Math.sin(aRad) * ny;
+                        const pushDirB = Math.cos(bRad) * nx + Math.sin(bRad) * ny;
+
+                        // Geser radiusOffset searah menjauh
+                        a.radiusOffset += pushDirA > 0 ? -overlap * SEPARATION_PUSH : overlap * SEPARATION_PUSH;
+                        b.radiusOffset += pushDirB > 0 ? overlap * SEPARATION_PUSH : -overlap * SEPARATION_PUSH;
+
+                        // Clamp radiusOffset agar tidak melebar berlebihan
+                        const maxOff = 50;
+                        a.radiusOffset = Math.max(-maxOff, Math.min(maxOff, a.radiusOffset));
+                        b.radiusOffset = Math.max(-maxOff, Math.min(maxOff, b.radiusOffset));
+                    }
+                }
+            }
+        }
+
+        /* -------------------------------------------------------------
+         * 11. CANVAS RENDER LOOP
+         * ------------------------------------------------------------- */
+        function renderCanvasLoop(timestamp) {
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            // Background: custom atau default
+            if (customBgLoaded && bgCustomImage.complete && bgCustomImage.naturalWidth > 0) {
+                // Render background custom, tapi tetap gambar orbit guide dengan opacity rendah
+                ctx.drawImage(bgCustomImage, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                // Overlay subtle orbit guide
+                drawTawafFloorGuide(ctx, true);
+            } else {
+                drawMasjidHaramBackground(ctx);
+                drawTawafFloorGuide(ctx, false);
+            }
+
+            // Ka'bah
+            drawKaabaBuilding(ctx);
+
+            // Update posisi + separation
+            updateUserPositions();
+
+            // Draw users (depth sort)
+            const now = Date.now();
+            let activeCount = 0;
+            let totalLapsSum = 0;
+
+            const sortedUsers = [...state.activeUsers].sort((a, b) => {
+                const posA = calculateUserPosition(a, now);
+                const posB = calculateUserPosition(b, now);
+                return posA.y - posB.y;
+            });
+
+            sortedUsers.forEach(user => {
+                const pos = calculateUserPosition(user, now);
+
+                if (pos.status === 'finished') {
+                    if (user.status !== 'finished') {
+                        user.status = 'finished';
+                        state.stats.completed++;
+                        playSynthesizedSound('finish_tawaf');
+                        setTimeout(() => removeUser(user.id), 1000);
+                    }
+                } else if (pos.status === 'exiting') {
+                    drawUserCharacter(ctx, user, pos);
+                } else if (pos.status !== 'finished') {
+                    activeCount++;
+                    totalLapsSum += pos.completedLaps;
+                    drawUserCharacter(ctx, user, pos);
+                }
+            });
+
+            // Update overlay stats
+            document.getElementById('live-active-count').innerText = activeCount;
+            document.getElementById('live-total-laps').innerText = totalLapsSum;
+            document.getElementById('stat-active').innerText = activeCount;
+            document.getElementById('stat-laps').innerText = totalLapsSum;
+            document.getElementById('stat-completed').innerText = state.stats.completed;
+            document.getElementById('stat-total-spawned').innerText = state.stats.totalSpawned;
+
+            requestAnimationFrame(renderCanvasLoop);
+        }
+
+        // Update radiusOffset tiap frame untuk separation
+        function updateUserPositions() {
+            const now = Date.now();
+            // Hitung posisi semua user aktif dulu
+            const positions = [];
+            state.activeUsers.forEach(user => {
+                if (user.status === 'finished') return;
+                const pos = calculateUserPosition(user, now);
+                if (pos.status !== 'finished') {
+                    positions.push({
+                        id: user.id,
+                        x: pos.x,
+                        y: pos.y,
+                        radiusOffset: user.radiusOffset,
+                        ref: user
+                    });
+                }
+            });
+
+            // Apply separation (modifikasi radiusOffset)
+            applySeparation(positions);
+
+            // Terapkan hasil kembali ke user
+            positions.forEach(p => {
+                p.ref.radiusOffset = p.radiusOffset;
+            });
+        }
+
+        /* -------------------------------------------------------------
+         * 12. POSISI USER (dengan laneOffset)
+         * ------------------------------------------------------------- */
+        function calculateUserPosition(user, now) {
+            if (state.settings.isPaused) {
+                now = user.pausedTime || now;
+            }
+
+            const elapsedSec = (now - user.startTime) / 1000 * state.settings.speedMultiplier * user.speedVar;
+            const entryDuration = 4.0;
+            const radiusOffset = user.radiusOffset || 0;
+
+            if (elapsedSec < entryDuration) {
+                const progress = elapsedSec / entryDuration;
+                const startOrbitX = CENTER_X + (TAWAF_RADIUS_X + radiusOffset) * Math.cos(Math.PI / 2);
+                const startOrbitY = CENTER_Y + (TAWAF_RADIUS_Y + radiusOffset * 0.7) * Math.sin(Math.PI / 2);
+
+                const currentX = ENTRY_X + (startOrbitX - ENTRY_X) * progress;
+                const currentY = ENTRY_Y + (startOrbitY - ENTRY_Y) * progress;
+
+                return { x: currentX, y: currentY, completedLaps: 0, status: 'entering', alpha: Math.min(progress * 2, 1) };
+            }
+
+            const orbitElapsed = elapsedSec - entryDuration;
+            const lapDuration = 10.0;
+            const totalTargetLaps = 15;
+
+            const totalRadians = (orbitElapsed / lapDuration) * (2 * Math.PI);
+            const currentLap = Math.floor(totalRadians / (2 * Math.PI));
+            const currentAngle = (Math.PI / 2) - totalRadians;
+
+            const rx = TAWAF_RADIUS_X + radiusOffset;
+            const ry = TAWAF_RADIUS_Y + radiusOffset * 0.7;
+
+            const currentX = CENTER_X + rx * Math.cos(currentAngle);
+            const currentY = CENTER_Y + ry * Math.sin(currentAngle);
+
+            if (currentLap >= totalTargetLaps) {
+                const overLapSec = orbitElapsed - (totalTargetLaps * lapDuration);
+                const fadeAlpha = Math.max(0, 1 - overLapSec / 1.5);
+                return { x: currentX, y: currentY, completedLaps: 5, status: fadeAlpha <= 0 ? 'finished' : 'exiting', alpha: fadeAlpha };
+            }
+
+            return { x: currentX, y: currentY, completedLaps: currentLap, status: 'tawaf', alpha: 1.0 };
+        }
+
+        /* -------------------------------------------------------------
+         * 13. VISUAL DRAWING
+         * ------------------------------------------------------------- */
+        function drawMasjidHaramBackground(ctx) {
+            const bgGrad = ctx.createRadialGradient(CENTER_X, CENTER_Y, 100, CENTER_X, CENTER_Y, 1000);
+            bgGrad.addColorStop(0, '#f8fafc');
+            bgGrad.addColorStop(0.6, '#f1f5f9');
+            bgGrad.addColorStop(1, '#e2e8f0');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            ctx.strokeStyle = 'rgba(203, 213, 225, 0.4)';
+            ctx.lineWidth = 3;
+            for (let r = 180; r <= 800; r += 90) {
+                ctx.beginPath();
+                ctx.ellipse(CENTER_X, CENTER_Y, r * 1.3, r * 0.85, 0, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            const gateGrad = ctx.createLinearGradient(ENTRY_X - 120, ENTRY_Y, ENTRY_X + 120, ENTRY_Y);
+            gateGrad.addColorStop(0, 'rgba(217, 119, 6, 0.05)');
+            gateGrad.addColorStop(0.5, 'rgba(217, 119, 6, 0.15)');
+            gateGrad.addColorStop(1, 'rgba(217, 119, 6, 0.05)');
+            ctx.fillStyle = gateGrad;
+            ctx.beginPath();
+            ctx.moveTo(CENTER_X - 140, CENTER_Y + TAWAF_RADIUS_Y + 40);
+            ctx.lineTo(CENTER_X + 140, CENTER_Y + TAWAF_RADIUS_Y + 40);
+            ctx.lineTo(CENTER_X + 220, CANVAS_HEIGHT);
+            ctx.lineTo(CENTER_X - 220, CANVAS_HEIGHT);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, 70);
+            ctx.fillStyle = '#d97706';
+            ctx.fillRect(0, 70, CANVAS_WIDTH, 6);
+        }
+
+        function drawTawafFloorGuide(ctx, subtle) {
+            ctx.save();
+            if (subtle) ctx.globalAlpha = 0.25;
+            ctx.strokeStyle = 'rgba(217, 119, 6, 0.3)';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([8, 8]);
+            ctx.beginPath();
+            ctx.moveTo(CENTER_X, CENTER_Y + 120);
+            ctx.lineTo(CENTER_X, CENTER_Y + TAWAF_RADIUS_Y + 120);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
+        }
+
+        function drawKaabaBuilding(ctx) {
+            const scale = state.settings.kaabaScale || 1.0;
+            const offsetY = state.settings.kaabaOffsetY || 0;
+            const w = 240 * scale;
+            const h = 260 * scale;
+            const x = CENTER_X - (w / 2);
+            const y = (CENTER_Y - (h / 2)) + offsetY;
+
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(CENTER_X, CENTER_Y + (h / 2.5) + offsetY, w * 0.6, 40 * scale, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            try {
+                ctx.drawImage(kaabaImage, x, y, w, h);
+            } catch (e) {
+                ctx.fillStyle = '#111827';
+                ctx.fillRect(x, y, w, h);
+            }
+        }
+
+        function drawUserCharacter(ctx, user, pos) {
+            ctx.save();
+            ctx.globalAlpha = pos.alpha;
+
+            let baseRadius = 24;
+            let circleColor = '#ffffff';
+            let strokeColor = '#94a3b8';
+            let textColor = '#0f172a';
+            let isGold = false;
+
+            if (user.category === 'sedang') {
+                baseRadius = 32;
+                circleColor = '#ffffff';
+                strokeColor = '#3b82f6';
+            } else if (user.category === 'besar') {
+                baseRadius = 42;
+                circleColor = '#fbbf24';
+                strokeColor = '#fef08a';
+                textColor = '#451a03';
+                isGold = true;
+            }
+
+            const r = baseRadius * state.settings.sizeScale;
+
+            if (isGold) {
+                const pulse = Math.sin(Date.now() / 200) * 6;
+                ctx.shadowColor = 'rgba(245, 158, 11, 0.8)';
+                ctx.shadowBlur = 18 + pulse;
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, r + 4 + (pulse / 2), 0, Math.PI * 2);
+                ctx.stroke();
+            } else if (user.category === 'sedang') {
+                ctx.shadowColor = 'rgba(59, 130, 246, 0.4)';
+                ctx.shadowBlur = 10;
+            } else {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+                ctx.shadowBlur = 6;
+            }
+
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+
+            if (isGold) {
+                const goldGrad = ctx.createRadialGradient(pos.x - r/3, pos.y - r/3, r/5, pos.x, pos.y, r);
+                goldGrad.addColorStop(0, '#fffbeb');
+                goldGrad.addColorStop(0.5, '#fde047');
+                goldGrad.addColorStop(1, '#d97706');
+                ctx.fillStyle = goldGrad;
+            } else {
+                ctx.fillStyle = circleColor;
+            }
+            ctx.fill();
+
+            ctx.lineWidth = isGold ? 3 : 2;
+            ctx.strokeStyle = strokeColor;
+            ctx.stroke();
+
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const maxTextWidth = r * 1.7;
+            let fontSize = isGold ? 16 : (user.category === 'sedang' ? 14 : 12);
+            fontSize = fontSize * state.settings.sizeScale;
+
+            ctx.font = `800 ${fontSize}px Inter, sans-serif`;
+            
+            let textWidth = ctx.measureText(user.username).width;
+            if (textWidth > maxTextWidth) {
+                fontSize = Math.max(8, fontSize * (maxTextWidth / textWidth));
+                ctx.font = `800 ${fontSize}px Inter, sans-serif`;
+            }
+
+            ctx.fillText(user.username, pos.x, pos.y - (pos.status === 'tawaf' ? 3 : 0));
+
+            if (pos.status === 'tawaf') {
+                const badgeY = pos.y + (r * 0.65);
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.arc(pos.x, badgeY, 9 * state.settings.sizeScale, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#f59e0b';
+                ctx.font = `700 ${10 * state.settings.sizeScale}px Inter, sans-serif`;
+                ctx.fillText(`${pos.completedLaps + 1}/5`, pos.x, badgeY + 0.5);
+            }
+
+            ctx.restore();
+        }
+
+        /* -------------------------------------------------------------
+         * 14. ADMIN UI
+         * ------------------------------------------------------------- */
+        function updateAdminTableUI() {
+            const tbody = document.getElementById('table-users-body');
+            if (!tbody) return;
+
+            if (state.activeUsers.length === 0) {
+                tbody.innerHTML = `
+                    <tr id="row-empty-placeholder">
+                        <td colspan="5" class="py-12 text-center text-slate-500">
+                            <i class="fa-solid fa-person-walking-arrow-right text-3xl mb-2 block opacity-40"></i>
+                            Belum ada jamaah yang ditambahkan. Gunakan form di sebelah kiri untuk menambah penonton!
+                        </td>
+                    </tr>`;
+                document.getElementById('badge-active-count').innerText = "0 Aktif";
+                return;
+            }
+
+            document.getElementById('badge-active-count').innerText = `${state.activeUsers.length} Aktif`;
+
+            let html = '';
+            const now = Date.now();
+
+            state.activeUsers.forEach(user => {
+                const pos = calculateUserPosition(user, now);
+                let catBadge = `<span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px] font-bold">BIASA</span>`;
+                if (user.category === 'sedang') {
+                    catBadge = `<span class="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-[10px] font-bold">SEDANG</span>`;
+                } else if (user.category === 'besar') {
+                    catBadge = `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-[10px] font-bold">BESAR GOLD</span>`;
+                }
+
+                let statusBadge = `<span class="text-blue-400 font-semibold"><i class="fa-solid fa-person-walking mr-1"></i> Menuju Ka'bah</span>`;
+                if (pos.status === 'tawaf') {
+                    statusBadge = `<span class="text-emerald-400 font-semibold"><i class="fa-solid fa-rotate mr-1"></i> Sedang Tawaf</span>`;
+                } else if (pos.status === 'exiting' || pos.status === 'finished') {
+                    statusBadge = `<span class="text-amber-400 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Putaran Selesai</span>`;
+                }
+
+                html += `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="py-3 px-3 font-bold text-slate-100">@${escapeHtml(user.username)}</td>
+                        <td class="py-3 px-2">${catBadge}</td>
+                        <td class="py-3 px-2 font-mono font-bold text-amber-400">${pos.completedLaps} / 5</td>
+                        <td class="py-3 px-2 text-[11px]">${statusBadge}</td>
+                        <td class="py-3 px-3 text-right">
+                            <button onclick="removeUser('${user.id}')" class="text-rose-400 hover:text-rose-300 p-1.5 hover:bg-rose-500/10 rounded-lg transition" title="Hapus Karakter">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function updateGlobalSettings() {
+            state.settings.speedMultiplier = parseFloat(document.getElementById('slider-speed').value);
+            state.settings.sizeScale = parseFloat(document.getElementById('slider-size').value) / 100;
+            // === VOLUME TERPISAH ===
+            state.settings.bgAudioVolume = parseFloat(document.getElementById('slider-volume-bg').value) / 100;
+            state.settings.ttsVolume = parseFloat(document.getElementById('slider-volume-tts').value) / 100;
+
+            document.getElementById('val-speed-multiplier').innerText = `${state.settings.speedMultiplier.toFixed(1)}x`;
+            document.getElementById('val-size-scale').innerText = `${Math.round(state.settings.sizeScale * 100)}%`;
+            document.getElementById('val-volume-bg').innerText = `${Math.round(state.settings.bgAudioVolume * 100)}%`;
+            document.getElementById('val-volume-tts').innerText = `${Math.round(state.settings.ttsVolume * 100)}%`;
+
+            // Terapkan volume ke audio unggahan
+            uploadedAudio.volume = state.settings.bgAudioVolume;
+
+            syncStateToFirebase();
+        }
+
+        function togglePauseAnimation() {
+            state.settings.isPaused = !state.settings.isPaused;
+            const btn = document.getElementById('btn-pause-toggle');
+            if (state.settings.isPaused) {
+                btn.innerHTML = `<i class="fa-solid fa-play text-emerald-400"></i> Lanjutkan Animasi`;
+                const now = Date.now();
+                state.activeUsers.forEach(u => u.pausedTime = now);
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-pause text-amber-400"></i> Jeda Animasi`;
+            }
+            syncStateToFirebase();
+        }
+
+        function updateSettingsUI() {
+            document.getElementById('slider-speed').value = state.settings.speedMultiplier;
+            document.getElementById('slider-size').value = state.settings.sizeScale * 100;
+            document.getElementById('slider-volume-bg').value = (state.settings.bgAudioVolume !== undefined ? state.settings.bgAudioVolume : 0.8) * 100;
+            document.getElementById('slider-volume-tts').value = (state.settings.ttsVolume !== undefined ? state.settings.ttsVolume : 0.8) * 100;
+
+            document.getElementById('val-speed-multiplier').innerText = `${state.settings.speedMultiplier.toFixed(1)}x`;
+            document.getElementById('val-size-scale').innerText = `${Math.round(state.settings.sizeScale * 100)}%`;
+            document.getElementById('val-volume-bg').innerText = `${Math.round((state.settings.bgAudioVolume !== undefined ? state.settings.bgAudioVolume : 0.8) * 100)}%`;
+            document.getElementById('val-volume-tts').innerText = `${Math.round((state.settings.ttsVolume !== undefined ? state.settings.ttsVolume : 0.8) * 100)}%`;
+
+            if (state.settings.kaabaScale) {
+                document.getElementById('slider-kaaba-scale').value = state.settings.kaabaScale * 100;
+            }
+            if (state.settings.kaabaOffsetY !== undefined) {
+                document.getElementById('slider-kaaba-offset-y').value = state.settings.kaabaOffsetY;
+            }
+
+            uploadedAudio.volume = state.settings.bgAudioVolume;
+        }
+
+        /* -------------------------------------------------------------
+         * 15. KAABA IMAGE HANDLERS
+         * ------------------------------------------------------------- */
+        function handleKaabaUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                state.settings.kaabaImageSrc = base64Data;
+                kaabaImage.src = base64Data;
+                saveFileToDB('custom_kaaba', base64Data);
+                syncStateToFirebase();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateKaabaAdjustments() {
+            state.settings.kaabaScale = parseFloat(document.getElementById('slider-kaaba-scale').value) / 100;
+            state.settings.kaabaOffsetY = parseFloat(document.getElementById('slider-kaaba-offset-y').value);
+            syncStateToFirebase();
+        }
+
+        function resetKaabaImage() {
+            state.settings.kaabaImageSrc = DEFAULT_KAABA_SVG;
+            state.settings.kaabaScale = 1.0;
+            state.settings.kaabaOffsetY = 0;
+            kaabaImage.src = DEFAULT_KAABA_SVG;
+            document.getElementById('slider-kaaba-scale').value = 100;
+            document.getElementById('slider-kaaba-offset-y').value = 0;
+            saveFileToDB('custom_kaaba', null);
+            syncStateToFirebase();
+        }
+
+        function toggleFullscreen() {
+            const elem = document.getElementById('obs-canvas-wrapper');
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => alert(`Gagal fullscreen: ${err.message}`));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        /* -------------------------------------------------------------
+         * 16. STORAGE PERSISTENCE
+         * ------------------------------------------------------------- */
+        async function loadStateFromStorage() {
+            try {
+                const saved = localStorage.getItem('vt_settings_state');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    state.settings = { ...state.settings, ...parsed };
+                }
+                const savedStats = localStorage.getItem('vt_stats_state');
+                if (savedStats) {
+                    state.stats = { ...state.stats, ...JSON.parse(savedStats) };
+                }
+            } catch (e) { console.warn("load storage err:", e); }
+        }
+
+        function saveStateToLocal() {
+            try {
+                // Jangan simpan base64 besar ke localStorage
+                const { kaabaImageSrc, bgImageSrc, ...settingsToSave } = state.settings;
+                localStorage.setItem('vt_settings_state', JSON.stringify(settingsToSave));
+                localStorage.setItem('vt_stats_state', JSON.stringify(state.stats));
+            } catch (e) { console.warn("save storage err:", e); }
+        }
+
+        // Auto-save tiap 5 detik
+        setInterval(saveStateToLocal, 5000);
+
     </script>
 </body>
 </html>
